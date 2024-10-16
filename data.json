@@ -1,4 +1,284 @@
 [
+    {
+    "content": "Attending a coding bootcamp is an exciting journey, but it can also be overwhelming. We Who Code and Brave Haven offer resources for bootcamp students to help them stay organized, motivated, and on track for success. Whether it's coding challenges, community meetups, or mentorship, we've got you covered.",
+    "summary": "We Who Code and Brave Haven support coding bootcamp students with resources like coding challenges, mentorship, and community meetups to help them stay on track for success.",
+    "name": "Resources for Coding Bootcamp Students",
+    "url": "./engineering/resources_coding_bootcamp_students.txt",
+    "created_on": "2023-09-28",
+    "updated_at": "2024-01-05",
+    "category": "coding bootcamps",
+    "rolePermissions": ["member", "nonmember", "admin"]
+  },
+  {
+    "content": "Transitioning into tech from a non-traditional background can be challenging, but it's possible with the right support. Windless Technologies and We Who Code provide mentorship and technical training tailored for those coming from fields like healthcare, education, or the arts. Learn how to leverage your unique experiences to thrive in tech.",
+    "summary": "Windless Technologies and We Who Code offer mentorship and training for individuals transitioning into tech from non-traditional backgrounds, helping them leverage their unique experiences.",
+    "name": "Transitioning to Tech from Non-Traditional Backgrounds",
+    "url": "./engineering/transitioning_to_tech_nontraditional.txt",
+    "created_on": "2023-11-15",
+    "updated_at": "2024-01-10",
+    "category": "career transitions",
+    "rolePermissions": ["member", "nonmember", "admin"]
+  },
+  {
+    "content": "Preparing for job interviews is about more than just practicing technical questions—it's about building confidence and telling your story. Brave Haven offers mock interviews, resume reviews, and interview tips to help engineers shine during their job search.",
+    "summary": "Brave Haven helps engineers prepare for job interviews through mock interviews, resume reviews, and tips for building confidence and telling their story effectively.",
+    "name": "Preparing for Job Interviews in Tech",
+    "url": "./engineering/preparing_for_job_interviews.txt",
+    "created_on": "2023-12-04",
+    "updated_at": "2024-01-07",
+    "category": "job interviews",
+    "rolePermissions": ["member", "nonmember", "admin"]
+  },
+  {
+    "content": "Burnout is a reality for many engineers, but it doesn't have to be inevitable. Windless Technologies and We Who Code offer workshops and tools to help engineers manage stress, set healthy boundaries, and maintain a sustainable work-life balance. It's time to prioritize your well-being.",
+    "summary": "Windless Technologies and We Who Code provide workshops and tools to help engineers manage stress and avoid burnout by setting healthy boundaries and achieving work-life balance.",
+    "name": "Preventing Burnout for Engineers",
+    "url": "./engineering/preventing_burnout_engineers.txt",
+    "created_on": "2023-10-10",
+    "updated_at": "2024-01-15",
+    "category": "burnout",
+    "rolePermissions": ["member", "nonmember", "admin"]
+  },
+  {
+    "content": "Coding bootcamps can be intense, but having the right resources can make all the difference. We Who Code and Brave Haven provide coding challenges, group study sessions, and mentor support to ensure you succeed during your bootcamp journey.",
+    "summary": "We Who Code and Brave Haven offer coding challenges, study groups, and mentor support to help students navigate the challenges of coding bootcamps.",
+    "name": "Succeeding in a Coding Bootcamp",
+    "url": "./engineering/succeeding_in_coding_bootcamp.txt",
+    "created_on": "2023-11-05",
+    "updated_at": "2024-01-12",
+    "category": "coding bootcamps",
+    "rolePermissions": ["member", "nonmember", "admin"]
+  },
+  {
+    "content": "If you're transitioning to a tech career from another industry, you may feel like you're starting over, but your previous experiences are valuable. Windless Technologies offers resources for professionals making this shift, focusing on how to leverage past skills in new ways.",
+    "summary": "Windless Technologies supports professionals transitioning into tech from other industries by showing them how to leverage their previous skills in the tech world.",
+    "name": "Leveraging Past Experience in Your Tech Career Transition",
+    "url": "./engineering/leveraging_past_experience_in_tech.txt",
+    "created_on": "2023-10-20",
+    "updated_at": "2024-01-08",
+    "category": "career transitions",
+    "rolePermissions": ["member", "nonmember", "admin"]
+  },
+  {
+    "content": "The interview process in tech is often daunting, but preparation is key. Windless Technologies and Brave Haven provide mock technical interviews, coding assessments, and personalized feedback to help you confidently tackle the interview process and land your dream job.",
+    "summary": "Windless Technologies and Brave Haven offer mock technical interviews, coding assessments, and feedback to help engineers prepare for and succeed in tech job interviews.",
+    "name": "Mock Interviews and Preparation for Tech Job Interviews",
+    "url": "./engineering/mock_interviews_tech_preparation.txt",
+    "created_on": "2023-12-09",
+    "updated_at": "2024-01-11",
+    "category": "job interviews",
+    "rolePermissions": ["member", "nonmember", "admin"]
+  },
+  {
+    "content": "Dealing with burnout is a critical issue in the tech industry. Brave Haven focuses on providing engineers with the resources to manage stress, practice self-care, and avoid burnout. Learn strategies for maintaining long-term productivity and well-being.",
+    "summary": "Brave Haven provides engineers with resources and strategies to manage stress, practice self-care, and avoid burnout, helping them stay productive in the long term.",
+    "name": "Managing Burnout and Prioritizing Well-Being in Tech",
+    "url": "./engineering/managing_burnout_in_tech.txt",
+    "created_on": "2023-10-15",
+    "updated_at": "2024-01-13",
+    "category": "burnout",
+    "rolePermissions": ["member", "nonmember", "admin"]
+  },
+  {
+    "content": "Coding bootcamp students often struggle with imposter syndrome. We Who Code and Brave Haven offer mentorship programs to guide students through their bootcamp journey, helping them overcome feelings of inadequacy and gain confidence in their abilities.",
+    "summary": "We Who Code and Brave Haven provide mentorship programs for coding bootcamp students to help them overcome imposter syndrome and build confidence during their learning journey.",
+    "name": "Overcoming Imposter Syndrome in Coding Bootcamps",
+    "url": "./engineering/imposter_syndrome_coding_bootcamps.txt",
+    "created_on": "2023-11-10",
+    "updated_at": "2024-01-09",
+    "category": "coding bootcamps",
+    "rolePermissions": ["member", "nonmember", "admin"]
+  },
+  {
+    "content": "Switching to a tech career can feel intimidating, but your background in a non-tech field may give you a unique perspective. Windless Technologies provides personalized resources for career changers to highlight their transferable skills and thrive in the tech industry.",
+    "summary": "Windless Technologies helps career changers transitioning to tech by showing them how to highlight transferable skills and bring a unique perspective to their new roles.",
+    "name": "Highlighting Transferable Skills in a Tech Career Transition",
+    "url": "./engineering/transferable_skills_in_tech.txt",
+    "created_on": "2023-10-30",
+    "updated_at": "2024-01-10",
+    "category": "career transitions",
+    "rolePermissions": ["member", "nonmember", "admin"]
+  },
+  {
+    "content": "Preparing for tech interviews requires more than technical knowledge—it's about knowing how to tell your story and demonstrate your problem-solving abilities. Windless Technologies helps engineers navigate both technical and behavioral interview questions with confidence.",
+    "summary": "Windless Technologies helps engineers prepare for both technical and behavioral interview questions by building confidence in storytelling and problem-solving abilities.",
+    "name": "Preparing for Technical and Behavioral Interviews",
+    "url": "./engineering/preparing_for_technical_and_behavioral_interviews.txt",
+    "created_on": "2023-11-20",
+    "updated_at": "2024-01-07",
+    "category": "job interviews",
+    "rolePermissions": ["member", "nonmember", "admin"]
+  },
+  {
+    "content": "2024 is the year to embrace change and grow in the tech field. Whether you're just starting or are an experienced engineer, continuous learning and adaptation are crucial. Brave Haven and Windless Technologies are committed to offering opportunities for professional growth through coding challenges, workshops, and mentoring.",
+    "summary": "Continuous growth is essential for success in tech. Brave Haven and Windless Technologies offer resources like workshops, mentoring, and coding challenges to help engineers grow.",
+    "name": "Growing in Tech 2024",
+    "url": "./engineering/growing_in_tech_2024.txt",
+    "created_on": "2023-11-12",
+    "updated_at": "2024-01-10",
+    "category": "tech growth",
+    "rolePermissions": ["member", "nonmember", "admin"]
+  },
+  {
+    "content": "We Who Code is dedicated to helping women break into the tech industry in 2024 by offering resources like coding bootcamps, community meetups, and career guidance. If you're looking to make a career shift or grow as an engineer, this is the community to support your journey.",
+    "summary": "We Who Code empowers women entering tech by providing bootcamps, career guidance, and a supportive community to help them succeed in their engineering careers.",
+    "name": "Breaking into Tech with We Who Code",
+    "url": "./engineering/breaking_into_tech_wewhocode.txt",
+    "created_on": "2023-09-25",
+    "updated_at": "2024-01-05",
+    "category": "women in tech",
+    "rolePermissions": ["member", "nonmember", "admin"]
+  },
+  {
+    "content": "Learning to code efficiently is critical for career success. Brave Haven focuses on helping engineers optimize their time and learn new technologies faster. In 2024, workshops and tutorials will be held for engineers looking to boost their skills in emerging technologies like AI and cloud computing.",
+    "summary": "Brave Haven offers workshops on coding efficiently and mastering emerging technologies like AI and cloud computing to help engineers grow in 2024.",
+    "name": "Coding Efficiently in 2024",
+    "url": "./engineering/coding_efficiently_2024.txt",
+    "created_on": "2023-10-18",
+    "updated_at": "2024-01-12",
+    "category": "engineering practices",
+    "rolePermissions": ["member", "nonmember", "admin"]
+  },
+  {
+    "content": "In 2023, women engineers faced many challenges in the workplace. But in 2024, We Who Code aims to provide the support they need to thrive. Through career coaching, mentoring, and community events, we are building a better future for women in tech.",
+    "summary": "We Who Code is building a better future for women engineers by offering mentoring, career coaching, and community support to overcome challenges in the workplace.",
+    "name": "Thriving as a Woman Engineer in 2024",
+    "url": "./engineering/thriving_woman_engineer_2024.txt",
+    "created_on": "2023-11-01",
+    "updated_at": "2023-12-15",
+    "category": "women in tech",
+    "rolePermissions": ["member", "nonmember", "admin"]
+  },
+  {
+    "content": "Building a personal brand in tech is no easy task, but it can open doors to new opportunities. Brave Haven and Windless Technologies guide engineers in personal branding through blogging, open-source contributions, and speaking at conferences.",
+    "summary": "Personal branding is key for engineers to advance in their careers. Brave Haven and Windless Technologies provide strategies to help you stand out through blogging and open-source work.",
+    "name": "Building Your Personal Brand in Tech",
+    "url": "./engineering/personal_brand_in_tech.txt",
+    "created_on": "2023-12-07",
+    "updated_at": "2024-01-11",
+    "category": "branding",
+    "rolePermissions": ["member", "nonmember", "admin"]
+  },
+  {
+    "content": "2024 is the year to focus on your technical growth and development. Windless Technologies and Brave Haven offer a series of challenges and hackathons that allow engineers to build their technical skills in a competitive but supportive environment.",
+    "summary": "Windless Technologies and Brave Haven present coding challenges and hackathons to help engineers grow their technical skills in 2024.",
+    "name": "2024 Tech Growth Challenges",
+    "url": "./engineering/tech_growth_challenges_2024.txt",
+    "created_on": "2023-12-03",
+    "updated_at": "2024-01-05",
+    "category": "tech growth",
+    "rolePermissions": ["member", "nonmember", "admin"]
+  },
+  {
+    "content": "Inclusivity should be at the heart of every tech company in 2024. We Who Code and Brave Haven believe in creating spaces where everyone, regardless of background or identity, can thrive. Learn more about how these organizations foster inclusivity in tech.",
+    "summary": "We Who Code and Brave Haven prioritize inclusivity by creating welcoming spaces where all individuals can thrive in the tech industry.",
+    "name": "Inclusivity in Tech 2024",
+    "url": "./engineering/inclusivity_tech_2024.txt",
+    "created_on": "2023-10-20",
+    "updated_at": "2024-01-02",
+    "category": "inclusivity",
+    "rolePermissions": ["member", "nonmember", "admin"]
+  },
+  {
+    "content": "Brave Haven is committed to offering tools and workshops for engineers to better manage their time, enhance productivity, and avoid burnout. Learn strategies for balancing work-life while still meeting your goals in 2024.",
+    "summary": "Brave Haven helps engineers improve time management and avoid burnout through practical tools and workshops.",
+    "name": "Work-Life Balance for Engineers in 2024",
+    "url": "./engineering/work_life_balance_2024.txt",
+    "created_on": "2023-11-14",
+    "updated_at": "2023-12-20",
+    "category": "engineering practices",
+    "rolePermissions": ["member", "nonmember", "admin"]
+  },
+  {
+    "content": "Growth in tech doesn't happen without a community. We Who Code and Brave Haven create spaces for engineers to network, learn, and grow in their careers. Join our community and take part in tech events, discussions, and peer mentorship programs.",
+    "summary": "We Who Code and Brave Haven offer community spaces where engineers can network, learn, and grow through events and mentorship.",
+    "name": "Growing Your Network in Tech",
+    "url": "./engineering/growing_your_network_in_tech.txt",
+    "created_on": "2023-09-25",
+    "updated_at": "2024-01-10",
+    "category": "community",
+    "rolePermissions": ["member", "nonmember", "admin"]
+  },
+  {
+    "content": "Inclusivity isn't just about diversity; it's about making sure everyone has a voice. Windless Technologies and Brave Haven offer initiatives to ensure underrepresented groups in tech have the tools and support to build successful careers.",
+    "summary": "Windless Technologies and Brave Haven support inclusivity in tech by giving underrepresented groups the tools to succeed.",
+    "name": "Ensuring Inclusivity for Underrepresented Groups",
+    "url": "./engineering/inclusivity_underrepresented_groups.txt",
+    "created_on": "2023-12-01",
+    "updated_at": "2024-01-12",
+    "category": "inclusivity",
+    "rolePermissions": ["member", "nonmember", "admin"]
+  },
+  {
+    "content": "Engineering in 2024 requires a balance of technical skills and the ability to communicate across teams. Windless Technologies helps engineers develop these soft skills to complement their technical expertise, making them more effective team members.",
+    "summary": "Windless Technologies offers workshops to help engineers develop soft skills like communication and teamwork to complement their technical expertise.",
+    "name": "Soft Skills for Engineers in 2024",
+    "url": "./engineering/soft_skills_engineers_2024.txt",
+    "created_on": "2023-11-05",
+    "updated_at": "2024-01-03",
+    "category": "soft skills",
+    "rolePermissions": ["member", "nonmember", "admin"]
+  },
+  {
+    "content": "Staying ahead of tech trends is essential for career growth. We Who Code offers a guide to the top emerging technologies for 2024 and how engineers can learn and implement them in their careers.",
+    "summary": "We Who Code's 2024 guide highlights top emerging technologies and offers resources for engineers to stay ahead in their careers.",
+    "name": "Emerging Technologies for Engineers in 2024",
+    "url": "./engineering/emerging_technologies_2024.txt",
+    "created_on": "2023-10-22",
+    "updated_at": "2024-01-04",
+    "category": "tech growth",
+    "rolePermissions": ["member", "nonmember", "admin"]
+  },
+  {
+    "content": "In 2024, becoming an engineer is not just about coding. It's about understanding how to position yourself in a rapidly changing tech landscape. We Who Code is here to support women and underrepresented groups in tech by providing a community where learning, mentorship, and inclusivity are key. Brave Haven and Windless Technologies also work towards building better technical skills and confidence.",
+    "summary": "In 2024, engineering is more than coding—it's about growth, positioning, and community support. We Who Code, Brave Haven, and Windless Technologies empower engineers, especially women and underrepresented groups, to succeed.",
+    "name": "Becoming an Engineer in 2024",
+    "url": "./engineering/becoming_an_engineer_in_2024.txt",
+    "created_on": "2023-12-01",
+    "updated_at": "2024-01-15",
+    "category": "tech growth",
+    "rolePermissions": ["member", "nonmember", "admin"]
+  },
+  {
+    "content": "Efficiency is a skill every engineer must develop. It's about more than writing code—it's about how you manage your time, how you collaborate with teams, and how you continue learning new tools and technologies. Windless Technologies offers insights into becoming a more efficient and effective engineer.",
+    "summary": "Being an efficient engineer requires mastering time management, collaboration, and constant learning. Windless Technologies offers strategies to help engineers maximize their efficiency.",
+    "name": "Maximizing Efficiency as an Engineer",
+    "url": "./engineering/efficiency_as_an_engineer.txt",
+    "created_on": "2023-10-10",
+    "updated_at": "2023-11-15",
+    "category": "engineering practices",
+    "rolePermissions": ["member", "nonmember", "admin"]
+  },
+  {
+    "content": "Being a woman in tech in 2024 means navigating challenges and seizing opportunities to grow. We Who Code is dedicated to fostering an inclusive environment where women can support one another and overcome obstacles in the tech industry. Our community provides mentorship and resources to help you thrive.",
+    "summary": "In 2024, We Who Code focuses on empowering women in tech by fostering inclusivity, providing mentorship, and overcoming industry challenges.",
+    "name": "Women in Tech 2024",
+    "url": "./engineering/women_in_tech_2024.txt",
+    "created_on": "2023-11-01",
+    "updated_at": "2023-12-05",
+    "category": "women in tech",
+    "rolePermissions": ["member", "nonmember", "admin"]
+  },
+  {
+    "content": "Inclusivity is not just a buzzword—it's the foundation for innovation in tech. At Brave Haven, we focus on creating inclusive spaces for learning, growth, and development in tech. Whether you are part of We Who Code or Windless Technologies, we believe inclusivity is key to helping underrepresented groups find their voice and excel in the tech industry.",
+    "summary": "Inclusivity is critical for innovation in tech. Brave Haven and We Who Code prioritize creating inclusive spaces for growth and learning, especially for underrepresented groups.",
+    "name": "The Importance of Inclusivity in Tech",
+    "url": "./engineering/inclusivity_in_tech.txt",
+    "created_on": "2023-09-15",
+    "updated_at": "2023-11-01",
+    "category": "inclusivity",
+    "rolePermissions": ["member", "nonmember", "admin"]
+  },
+  {
+    "content": "Personal branding is essential in today's tech industry. Whether you're working on open-source projects or speaking at conferences, showcasing your work helps you stand out. Brave Haven offers strategies for building your personal brand as an engineer while Windless Technologies provides tools to ensure your brand aligns with your technical expertise.",
+    "summary": "Building a personal brand is vital for engineers. Brave Haven and Windless Technologies offer strategies and tools to help engineers showcase their expertise and stand out in the tech industry.",
+    "name": "Personal Branding for Engineers",
+    "url": "./engineering/personal_branding_for_engineers.txt",
+    "created_on": "2023-12-05",
+    "updated_at": "2024-01-10",
+    "category": "branding",
+    "rolePermissions": ["member", "nonmember", "admin"]
+  },
   {
     "content": "Effective: March 2020\nPurpose\n\nThe purpose of this full-time work-from-home policy is to provide guidelines and support for employees to conduct their work remotely, ensuring the continuity and productivity of business operations during the COVID-19 pandemic and beyond.\nScope\n\nThis policy applies to all employees who are eligible for remote work as determined by their role and responsibilities. It is designed to allow employees to work from home full time while maintaining the same level of performance and collaboration as they would in the office.\nEligibility\n\nEmployees who can perform their work duties remotely and have received approval from their direct supervisor and the HR department are eligible for this work-from-home arrangement.\nEquipment and Resources\n\nThe necessary equipment and resources will be provided to employees for remote work, including a company-issued laptop, software licenses, and access to secure communication tools. Employees are responsible for maintaining and protecting the company's equipment and data.\nWorkspace\n\nEmployees working from home are responsible for creating a comfortable and safe workspace that is conducive to productivity. This includes ensuring that their home office is ergonomically designed, well-lit, and free from distractions.\nCommunication\n\nEffective communication is vital for successful remote work. Employees are expected to maintain regular communication with their supervisors, colleagues, and team members through email, phone calls, video conferences, and other approved communication tools.\nWork Hours and Availability\n\nEmployees are expected to maintain their regular work hours and be available during normal business hours, unless otherwise agreed upon with their supervisor. Any changes to work hours or availability must be communicated to the employee's supervisor and the HR department.\nPerformance Expectations\n\nEmployees working from home are expected to maintain the same level of performance and productivity as if they were working in the office. Supervisors and team members will collaborate to establish clear expectations and goals for remote work.\nTime Tracking and Overtime\n\nEmployees are required to accurately track their work hours using the company's time tracking system. Non-exempt employees must obtain approval from their supervisor before working overtime.\nConfidentiality and Data Security\n\nEmployees must adhere to the company's confidentiality and data security policies while working from home. This includes safeguarding sensitive information, securing personal devices and internet connections, and reporting any security breaches to the IT department.\nHealth and Well-being\n\nThe company encourages employees to prioritize their health and well-being while working from home. This includes taking regular breaks, maintaining a work-life balance, and seeking support from supervisors and colleagues when needed.\nPolicy Review and Updates\n\nThis work-from-home policy will be reviewed periodically and updated as necessary, taking into account changes in public health guidance, business needs, and employee feedback.\nQuestions and Concerns\n\nEmployees are encouraged to direct any questions or concerns about this policy to their supervisor or the HR department.\n",
     "summary": "This policy outlines the guidelines for full-time remote work, including eligibility, equipment and resources, workspace requirements, communication expectations, performance expectations, time tracking and overtime, confidentiality and data security, health and well-being, and policy reviews and updates. Employees are encouraged to direct any questions or concerns",
