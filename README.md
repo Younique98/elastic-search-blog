@@ -3,7 +3,7 @@
 
 # Elasticsearch Search - Flask Project
 
-This directory contains a starter **Flask** project that demonstrates the implementation of various search techniques using **Elasticsearch**. It covers full-text keyword search, dense and sparse vector embedding searches, and result ranking using Elastic's **Reciprocal Rank Fusion (RRF)** algorithm.
+**Flask** project that demonstrates the implementation of various search techniques using **Elasticsearch**. It covers full-text keyword search, dense and sparse vector embedding searches, and result ranking using Elastic's **Reciprocal Rank Fusion (RRF)** algorithm.
 
 ## Overview
 
@@ -57,4 +57,4 @@ The project is **self-hosted** and runs locally via a connection to a self-hoste
    docker-compose up
 4. pip install -r requirements.txt
 5.  flask run
-6. open the browser t view at http://localhost:5001/
+6. open the browser to view at http://localhost:5001/
