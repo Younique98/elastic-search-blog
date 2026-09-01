@@ -50,11 +50,12 @@ The project is **self-hosted** and runs locally via a connection to a self-hoste
 
 ## Running the Project
 
-1. Ensure you have Docker installed and running.
+1. Have an Elasticsearch instance available (self-hosted via Docker, or Elastic Cloud) and note its URL or Cloud ID.
 2. Clone the repository and navigate to the project directory.
-3. Set up the self-hosted Elasticsearch container by running the following command:
-   ```bash
-   docker-compose up
-4. pip install -r requirements.txt
-5.  flask run
-6. open the browser to view at http://localhost:5001/
+3. Copy `.env.example` to `.env` and fill in `SECRET_KEY` (without it the app falls back to a random key that changes on every restart, invalidating any CSRF tokens in flight — set a real one before deploying) and your Elasticsearch connection details (`ES_URL`, or `ES_CLOUD_ID`/`ES_API_KEY` for Elastic Cloud).
+4. `pip install -r requirements.txt`
+5. `flask reindex` to load `data.json` into the Elasticsearch index.
+6. `flask run`
+7. Open the browser to view at http://localhost:5001/
+
+Note: `FLASK_DEBUG` is intentionally not set in `.flaskenv`. The Werkzeug debugger it enables allows remote code execution if the app is ever exposed outside localhost — set it in your own shell for local debugging only, never in a committed file.

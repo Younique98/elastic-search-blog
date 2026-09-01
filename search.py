@@ -11,7 +11,27 @@ load_dotenv()
 
 class Search:
     def __init__(self):
-        self.es = Elasticsearch('http://localhost:9200')  # <-- connection options need to be added here
+        # Connection details come from the environment (see .env.example)
+        # rather than being hardcoded, so credentials/cloud IDs never end up
+        # committed to source control and the app can point at a different
+        # cluster per environment without a code change.
+        es_url = os.environ.get('ES_URL', 'http://localhost:9200')
+        es_cloud_id = os.environ.get('ES_CLOUD_ID')
+        es_api_key = os.environ.get('ES_API_KEY')
+        es_username = os.environ.get('ES_USERNAME')
+        es_password = os.environ.get('ES_PASSWORD')
+
+        client_kwargs = {}
+        if es_api_key:
+            client_kwargs['api_key'] = es_api_key
+        elif es_username and es_password:
+            client_kwargs['basic_auth'] = (es_username, es_password)
+
+        if es_cloud_id:
+            self.es = Elasticsearch(cloud_id=es_cloud_id, **client_kwargs)
+        else:
+            self.es = Elasticsearch(es_url, **client_kwargs)
+
         client_info = self.es.info()
         print('Connected to Elasticsearch!')
         pprint(client_info.body)
