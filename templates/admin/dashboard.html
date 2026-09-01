@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h3 mb-0">Manage posts</h1>
+        <a href="{{ url_for('admin_new_post') }}" class="btn btn-primary">+ New post</a>
+    </div>
+
+    {% if posts %}
+        <div class="table-responsive">
+            <table class="table table-striped align-middle">
+                <caption class="visually-hidden">All posts, newest updated first</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">Title</th>
+                        <th scope="col">Category</th>
+                        <th scope="col">Updated</th>
+                        <th scope="col"><span class="visually-hidden">Actions</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for post in posts %}
+                        <tr>
+                            <td>
+                                <a href="{{ url_for('get_document', id=post.id) }}">{{ post.name }}</a>
+                            </td>
+                            <td>{{ post.category }}</td>
+                            <td>{{ post.updated_at }}</td>
+                            <td class="text-end">
+                                <a href="{{ url_for('admin_edit_post', id=post.id) }}" class="btn btn-sm btn-outline-primary">
+                                    Edit<span class="visually-hidden"> {{ post.name }}</span>
+                                </a>
+                                <form method="POST" action="{{ url_for('admin_delete_post', id=post.id) }}" class="d-inline"
+                                      onsubmit="return confirm('Delete &#8220;{{ post.name | e }}&#8221;? This cannot be undone.');">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                        Delete<span class="visually-hidden"> {{ post.name }}</span>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p>No posts yet. <a href="{{ url_for('admin_new_post') }}">Create the first one</a>.</p>
+    {% endif %}
+{% endblock %}

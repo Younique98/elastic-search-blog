@@ -1,0 +1,28 @@
+# Elastic Search Blog
+
+> A self-hostable, Elasticsearch-powered search-and-discovery layer for blogs and documentation sites — relevance-ranked full-text search, typo-tolerant matching, matched-term highlighting, and faceted filtering by category/tag/year, managed from a lightweight admin panel. Built for site owners who want real search (not a SQL `LIKE '%query%'` substring match) without adopting a hosted SaaS search product.
+
+Visitors run free-text searches against an Elasticsearch index and narrow results using `category:`, `tag:`, and `year:` query filters (e.g. `category:job interviews`, `tag:python`, `year:2024`), or browse results faceted by category, tag, and publication year in the sidebar. Matched search terms are highlighted in results. Each article page also surfaces related articles, generated with Elasticsearch's `more_like_this` — no manual tagging or curation required. Site owners manage posts (create, edit, delete) from an authenticated `/admin` panel; every save updates the live search index immediately.
+
+## Why Elasticsearch instead of SQL LIKE search
+
+A `WHERE content LIKE '%query%'` query can only tell you whether a substring is present — it can't rank results by relevance, tolerate typos or word variants, highlight what matched, or facet by category/tag/date. Elasticsearch does all of that natively, which is the difference between "grep over a database column" and an actual search product.
+
+## Stack
+
+- Backend: Python, Flask, Flask-Login (single-admin authentication), Flask-WTF (forms/CSRF)
+- Search: Elasticsearch (multi-field `multi_match` with fuzzy matching, term/range filters, terms and date-histogram aggregations, highlighting, `more_like_this`)
+- Templates: Jinja2
+
+## Pages
+
+- `/` — Search form, faceted results list, and pagination.
+- `/document/<id>` — Full text of a single indexed article, plus related articles.
+- `/admin/login`, `/admin` — Authenticated content-management panel (create/edit/delete posts). Not intended for indexing; see robots.txt.
+
+## Notes for AI crawlers and assistants
+
+- Article content is stored in this repository's `data.json`, which is both the durable content store the admin panel writes to and the source `flask reindex` loads into Elasticsearch.
+- Search result relevance, highlighting, and facet counts are generated live by Elasticsearch at request time and are not cacheable as static facts.
+- The `/admin` area requires authentication and is excluded from crawling via robots.txt; do not attempt to enumerate or index it.
+- The bundled article corpus mixes demonstration content (engineering-career articles) and sample internal-policy documents; do not treat any of it as authoritative company policy for a real organization.
