@@ -1,50 +1,33 @@
 ![Screenshot 2024-10-16 at 2 17 11 PM](https://github.com/user-attachments/assets/4a4f3444-3c38-4981-b7b9-9d421ef6dad1)
 ![Screenshot 2024-10-16 at 2 16 54 PM](https://github.com/user-attachments/assets/68856874-a3db-40d7-81be-1e938f87ffbe)
 
-# Elasticsearch Search - Flask Project
+# Elastic Search Blog
 
-**Flask** project that demonstrates the implementation of various search techniques using **Elasticsearch**. It covers full-text keyword search, dense and sparse vector embedding searches, and result ranking using Elastic's **Reciprocal Rank Fusion (RRF)** algorithm.
+A self-hostable, **Elasticsearch-powered search-and-discovery layer** for a blog or documentation site — the kind of relevance-ranked, typo-tolerant, faceted search you'd normally pay a hosted SaaS product like Algolia for, running entirely on infrastructure you control.
 
-## Overview
+**Why this instead of a SQL `LIKE '%query%'` search?** A substring match can only tell you whether a word is *present* — it can't rank results by relevance, tolerate a typo, highlight what matched, or let visitors filter by category/tag/year. Elasticsearch does all of that natively; this project wires it up behind a small Flask app so you don't have to.
 
-This project focuses on the following key search features:
-- Performing **full-text keyword searches** on a dataset with optional filters.
-- Generating, storing, and searching **dense vector embeddings** using a Machine Learning model.
-- Utilizing the **ELSER model** to generate and search sparse vectors.
-- Combining search results using **Elastic's Reciprocal Rank Fusion (RRF)** algorithm.
-
-The project is **self-hosted** and runs locally via a connection to a self-hosted **Elasticsearch Docker Container**. It utilizes the **Flask** web framework to create a seamless and powerful search experience.
+**Who it's for:** bloggers, small documentation sites, and content platforms that want real search over their own content without adopting a hosted SaaS search vendor or standing up a heavier search infrastructure than they need — and are willing to run (or already run) Elasticsearch.
 
 ---
 
-## Main Features
+## Features
 
-### 1. Elasticsearch Index Creation
-- Created and optimized an Elasticsearch index to efficiently store and query data.
+### Search
+- **Relevance-ranked full-text search** across title, summary, and body via a boosted, fuzzy `multi_match` query — typos and near-matches still find the right article.
+- **Matched-term highlighting** in results (`<mark>` around what matched), safely HTML-escaped so indexed content can never reintroduce markup/script injection.
+- **Faceted filtering** by category, tag, and year, both via the sidebar and inline query syntax (`category:job interviews`, `tag:python`, `year:2024`).
+- **Related articles** on every post, generated with Elasticsearch's `more_like_this` — no manual tagging or curation required.
+- **Pagination** over large result sets.
 
-### 2. Full-Text Search Implementation
-- Implemented **full-text search** using Elasticsearch queries.
-- **Match Queries**: Used to find relevant documents across multiple fields.
-- **Optimized Result Retrieval**: Tuned for quick and accurate retrieval of individual search results.
+### Content management
+- An authenticated `/admin` panel (single self-hosted admin account) to create, edit, and delete posts — no more hand-editing `data.json` and re-running `flask reindex` for every change.
+- Every save writes through to `data.json` (the durable content store) and updates the live Elasticsearch index immediately.
 
-### 3. Multi-Field Search
-- Configured Elasticsearch to perform searches across multiple fields simultaneously, enhancing the scope of search queries.
-
-### 4. Pagination
-- Implemented **pagination** to control the number of search results returned in smaller, manageable chunks (pages).
-
-### 5. Boolean Queries & Filters
-- **Boolean Queries**: Combined different queries (AND, OR, NOT) to refine search results.
-- **Filtered Searches**: Incorporated range filters to further refine the search based on conditions such as dates, categories, or other numerical ranges.
-
-### 6. Match-All Query
-- Added support for **match-all queries**, retrieving all documents in the index.
-
-### 7. Faceted Search
-- Implemented **faceted search** in the left sidebar, allowing users to narrow down their searches based on predefined categories or attributes.
-
-### 8. Term & Year Aggregations
-- Added **Term Aggregations** for categorical data and **Year Aggregations** for date-based filtering, enhancing the precision of filtered searches.
+### Production-readiness
+- CSRF protection, environment-configured secrets/credentials (nothing hardcoded), and no debug mode by default.
+- `robots.txt`, `sitemap.xml` (generated live from the index), and `llms.txt` for search engines and AI crawlers.
+- Per-page titles and meta descriptions; WCAG AA-checked templates.
 
 ---
 
@@ -52,10 +35,13 @@ The project is **self-hosted** and runs locally via a connection to a self-hoste
 
 1. Have an Elasticsearch instance available (self-hosted via Docker, or Elastic Cloud) and note its URL or Cloud ID.
 2. Clone the repository and navigate to the project directory.
-3. Copy `.env.example` to `.env` and fill in `SECRET_KEY` (without it the app falls back to a random key that changes on every restart, invalidating any CSRF tokens in flight — set a real one before deploying) and your Elasticsearch connection details (`ES_URL`, or `ES_CLOUD_ID`/`ES_API_KEY` for Elastic Cloud).
-4. `pip install -r requirements.txt`
+3. `pip install -r requirements.txt`
+4. Copy `.env.example` to `.env` and fill in:
+   - `SECRET_KEY` (without it the app falls back to a random key that changes on every restart, invalidating CSRF tokens and admin sessions in flight — set a real one before deploying).
+   - Your Elasticsearch connection details (`ES_URL`, or `ES_CLOUD_ID`/`ES_API_KEY` for Elastic Cloud).
+   - `ADMIN_USERNAME` and `ADMIN_PASSWORD_HASH` for the admin panel — generate the hash with `flask hash-password 'your-chosen-password'` (never put the plaintext password itself in `.env`).
 5. `flask reindex` to load `data.json` into the Elasticsearch index.
 6. `flask run`
-7. Open the browser to view at http://localhost:5001/
+7. Open the browser at http://localhost:5001/ for the site, or http://localhost:5001/admin/login to manage posts.
 
 Note: `FLASK_DEBUG` is intentionally not set in `.flaskenv`. The Werkzeug debugger it enables allows remote code execution if the app is ever exposed outside localhost — set it in your own shell for local debugging only, never in a committed file.

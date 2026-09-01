@@ -6,4 +6,16 @@
     {% for paragraph in paragraphs %}
         <p>{{ paragraph }}</p>
     {% endfor %}
+    {% if related %}
+        <hr class="my-4">
+        <h2 class="h5">Related articles</h2>
+        <ul>
+            {% for item in related %}
+                <li>
+                    <a href="{{ url_for('get_document', id=item._id) }}">{{ item._source.name }}</a>
+                    — {{ item._source.summary }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
 {% endblock %}

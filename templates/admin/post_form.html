@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1 class="h3 mb-3">{{ 'Edit post' if mode == 'edit' else 'New post' }}</h1>
+    <form method="POST" novalidate>
+        {{ form.hidden_tag() }}
+        <div class="mb-3">
+            {{ form.name.label(class_='form-label') }}
+            {{ form.name(class_='form-control', autofocus=true) }}
+            {% for e in form.name.errors %}
+                <div class="text-danger small">{{ e }}</div>
+            {% endfor %}
+        </div>
+        <div class="mb-3">
+            {{ form.summary.label(class_='form-label') }}
+            {{ form.summary(class_='form-control', rows=2) }}
+            <div class="form-text">{{ form.summary.description }}</div>
+            {% for e in form.summary.errors %}
+                <div class="text-danger small">{{ e }}</div>
+            {% endfor %}
+        </div>
+        <div class="mb-3">
+            {{ form.content.label(class_='form-label') }}
+            {{ form.content(class_='form-control', rows=12) }}
+            {% for e in form.content.errors %}
+                <div class="text-danger small">{{ e }}</div>
+            {% endfor %}
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                {{ form.category.label(class_='form-label') }}
+                {{ form.category(class_='form-control') }}
+                {% for e in form.category.errors %}
+                    <div class="text-danger small">{{ e }}</div>
+                {% endfor %}
+            </div>
+            <div class="col-md-6 mb-3">
+                {{ form.tags.label(class_='form-label') }}
+                {{ form.tags(class_='form-control') }}
+                <div class="form-text">{{ form.tags.description }}</div>
+                {% for e in form.tags.errors %}
+                    <div class="text-danger small">{{ e }}</div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="d-flex gap-2">
+            {{ form.submit(class_='btn btn-primary') }}
+            <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-secondary">Cancel</a>
+        </div>
+    </form>
+{% endblock %}

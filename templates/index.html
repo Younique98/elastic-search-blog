@@ -2,6 +2,21 @@
 
 {% block content %}
     <h1 class="visually-hidden">Elastic Search Blog: search engineering &amp; career articles</h1>
+    {% if not results and request.method != 'POST' %}
+        <div class="mb-4">
+            <p class="lead">
+                Elastic Search Blog is a self-hostable search-and-discovery layer for blogs and documentation sites,
+                built on Elasticsearch instead of a plain SQL <code>LIKE '%query%'</code> query.
+            </p>
+            <p>
+                That means relevance-ranked results (not just substring matches), typo-tolerant fuzzy matching,
+                matched-term highlighting, and faceted filtering by category, tag, and year — the kind of search
+                experience teams normally pay a hosted SaaS like Algolia for, running entirely on your own
+                infrastructure. Publish and edit posts from the <a href="{{ url_for('admin_login') }}">admin panel</a>;
+                every save updates the search index immediately.
+            </p>
+        </div>
+    {% endif %}
     <form method="POST" action="{{ url_for('handle_search') }}">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <div class="mb-3">
@@ -15,14 +30,16 @@
             <div class="col-2 mt-2">
                 <p><a href="javascript:history.back(1)">← Back to previous search</a></p>
                 {% for agg in aggs %}
-                    <h2 class="h6 mt-3">{{ agg }}</h2>
-                    {% for key, count in aggs[agg].items() %}
-                        <form method="POST">
-                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                            <input type="hidden" name="query" value="{{ agg|lower }}:{{key}} {{ query }}">
-                            <button type="submit" class="btn btn-link btn-sm"{% if aggs[agg]|length == 1 %} disabled{% endif %}>{{ key }} ({{ count }})<span class="visually-hidden"> in {{ agg }}</span></button>
-                        </form>
-                    {% endfor %}
+                    {% if aggs[agg] %}
+                        <h2 class="h6 mt-3">{{ agg }}</h2>
+                        {% for key, count in aggs[agg].items() %}
+                            <form method="POST">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <input type="hidden" name="query" value="{{ agg|lower }}:{{key}} {{ query }}">
+                                <button type="submit" class="btn btn-link btn-sm"{% if aggs[agg]|length == 1 %} disabled{% endif %}>{{ key }} ({{ count }})<span class="visually-hidden"> in {{ agg }}</span></button>
+                            </form>
+                        {% endfor %}
+                    {% endif %}
                 {% endfor %}
             </div>
             <div class="col-10">
@@ -49,14 +66,15 @@
                 </div>
                 {% for result in results %}
                     <p>
-                        {{ from_ + loop.index }}. <b><a href="{{ url_for('get_document', id=result._id) }}">{{ result._source.name }}</a></b>
+                        {{ from_ + loop.index }}. <b><a href="{{ url_for('get_document', id=result._id) }}">{{ result.display_name }}</a></b>
                         <br>
-                        {{ result._source.summary }}
+                        {{ result.display_summary }}
                         <br>
                         <small>
                             Category: {{ result._source.category }}.
+                            {% if result._source.tags %}Tags: {{ result._source.tags | join(', ') }}.{% endif %}
                             Last updated: {{ result._source.updated_at | default(result._source.created_on) }}.
-                            {% if result._score %}<i>(Relevance score: {{ result._score }})</i>{% endif %}
+                            {% if result._score %}<i>(Relevance score: {{ '%.2f' | format(result._score) }})</i>{% endif %}
                         </small>
                     </p>
                 {% endfor %}

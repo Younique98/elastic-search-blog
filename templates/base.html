@@ -32,8 +32,34 @@
                         />
                         Elastic Search Blog
                     </a>
+                    <ul class="navbar-nav flex-row ms-auto">
+                        {% if current_user.is_authenticated %}
+                            <li class="nav-item me-3">
+                                <a class="nav-link" href="{{ url_for('admin_dashboard') }}">Manage posts</a>
+                            </li>
+                            <li class="nav-item">
+                                <form method="POST" action="{{ url_for('admin_logout') }}" class="d-inline">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" class="btn btn-link nav-link p-0">Log out</button>
+                                </form>
+                            </li>
+                        {% else %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('admin_login') }}">Admin login</a>
+                            </li>
+                        {% endif %}
+                    </ul>
                 </div>
             </nav>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'danger' if category == 'error' else category }}" role="alert">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
             <main>
                 {% block content %}{% endblock %}
             </main>
