@@ -1,28 +1,34 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h1 class="visually-hidden">Elastic Search Blog: search engineering &amp; career articles</h1>
+    <h1 class="visually-hidden">RetrievalKit: hybrid search and RAG retrieval demo</h1>
     {% if not results and request.method != 'POST' %}
-        <div class="mb-4">
+        <div class="rk-hero">
+            <span class="rk-badge">Live demo — sample engineering knowledge base</span>
             <p class="lead">
-                Elastic Search Blog is a self-hostable search-and-discovery layer for blogs and documentation sites,
-                built on Elasticsearch instead of a plain SQL <code>LIKE '%query%'</code> query.
+                RetrievalKit is self-hostable hybrid retrieval infrastructure for engineering teams building
+                RAG pipelines and AI agents on Elasticsearch.
             </p>
             <p>
-                That means relevance-ranked results (not just substring matches), typo-tolerant fuzzy matching,
-                matched-term highlighting, and faceted filtering by category, tag, and year — the kind of search
-                experience teams normally pay a hosted SaaS like Algolia for, running entirely on your own
-                infrastructure. Publish and edit posts from the <a href="{{ url_for('admin_login') }}">admin panel</a>;
-                every save updates the search index immediately.
+                Every query below runs BM25 lexical search and Elasticsearch's built-in semantic retrieval in
+                parallel, merged with Reciprocal Rank Fusion — so a query like <code>why do requests fail under
+                load</code> can surface a doc about connection pool exhaustion even if it never uses those words.
+                No second vector database, no external embedding service: the semantic index lives inside the
+                same Elasticsearch cluster you already operate.
+            </p>
+            <p class="mb-0">
+                This search box runs against a sample engineering-documentation corpus so you can try it live.
+                Manage documents from the <a href="{{ url_for('admin_login') }}">admin panel</a>; every save
+                updates the index immediately.
             </p>
         </div>
     {% endif %}
     <form method="POST" action="{{ url_for('handle_search') }}">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <div class="mb-3">
-          <label for="query" class="form-label">Search articles</label>
-          <input type="text" class="form-control" name="query" id="query" placeholder="Enter your search query" value="{{ query }}" autofocus>
-          <div id="query-help" class="form-text">Narrow results with filters, e.g. <code>category:job interviews</code> or <code>year:2024</code>.</div>
+          <label for="query" class="form-label">Search the demo knowledge base</label>
+          <input type="text" class="form-control" name="query" id="query" placeholder="Try: why do requests fail under load" value="{{ query }}" autofocus>
+          <div id="query-help" class="form-text">Narrow results with filters, e.g. <code>category:incident-response</code> or <code>year:2025</code>.</div>
       </div>
     </form>
     {% if results %}

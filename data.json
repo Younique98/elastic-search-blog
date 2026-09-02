@@ -1,450 +1,189 @@
 [
   {
-    "id": "resources-for-coding-bootcamp-students",
-    "content": "Attending a coding bootcamp is an exciting journey, but it can also be overwhelming. We Who Code and Brave Haven offer resources for bootcamp students to help them stay organized, motivated, and on track for success. Whether it's coding challenges, community meetups, or mentorship, we've got you covered.",
-    "summary": "We Who Code and Brave Haven support coding bootcamp students with resources like coding challenges, mentorship, and community meetups to help them stay on track for success.",
-    "name": "Resources for Coding Bootcamp Students",
-    "url": "./engineering/resources_coding_bootcamp_students.txt",
-    "created_on": "2023-09-28",
-    "updated_at": "2024-01-05",
-    "category": "coding bootcamps",
-    "rolePermissions": [
-      "member",
-      "nonmember",
-      "admin"
-    ],
-    "tags": []
+    "id": "connection-pool-exhaustion-under-load",
+    "name": "Diagnosing Connection Pool Exhaustion Under Load",
+    "summary": "When a service starts timing out under traffic spikes even though CPU and memory look fine, the culprit is usually a saturated connection pool, not the database itself. Here is how to confirm it and size the pool correctly.",
+    "content": "A service that responds fine under normal traffic but starts hanging or returning 504s the moment concurrent requests spike is exhibiting a classic symptom of connection pool exhaustion. CPU and memory graphs stay flat because the process isn't doing more work, it's waiting: every incoming request blocks on acquiring a database connection, and once the pool's max size is reached, new requests queue behind whichever request currently holds a connection open. Confirm it by checking your pool's active/idle/waiting metrics during the incident window, not just database-side connection counts, since the bottleneck is almost always the application-side pool limit rather than the database's own max_connections setting. The fix is rarely 'just raise the pool size' — a larger pool just moves the bottleneck to the database, which has its own connection ceiling and per-connection memory cost. Instead, profile what's holding connections open longest (usually a slow query or a transaction that does non-database work while a connection is checked out), fix that first, and only then tune pool size against your actual concurrency ceiling, using a formula like connections = ((core_count * 2) + effective_spindle_count) as a starting point, not a target.",
+    "category": "incident-response",
+    "tags": ["databases", "performance", "postgres"],
+    "created_on": "2025-02-11",
+    "updated_at": "2025-02-11",
+    "rolePermissions": ["member", "nonmember", "admin"]
   },
   {
-    "id": "transitioning-to-tech-from-non-traditional-backgrounds",
-    "content": "Transitioning into tech from a non-traditional background can be challenging, but it's possible with the right support. Windless Technologies and We Who Code provide mentorship and technical training tailored for those coming from fields like healthcare, education, or the arts. Learn how to leverage your unique experiences to thrive in tech.",
-    "summary": "Windless Technologies and We Who Code offer mentorship and training for individuals transitioning into tech from non-traditional backgrounds, helping them leverage their unique experiences.",
-    "name": "Transitioning to Tech from Non-Traditional Backgrounds",
-    "url": "./engineering/transitioning_to_tech_nontraditional.txt",
-    "created_on": "2023-11-15",
-    "updated_at": "2024-01-10",
-    "category": "career transitions",
-    "rolePermissions": [
-      "member",
-      "nonmember",
-      "admin"
-    ],
-    "tags": []
+    "id": "designing-idempotent-api-endpoints",
+    "name": "Designing Idempotent API Endpoints",
+    "summary": "A client that retries a POST after a timeout has no way to know whether the original request succeeded. Idempotency keys close that gap without forcing clients to guess.",
+    "content": "Network timeouts don't tell you whether the request failed before or after the server processed it, which means naive retry logic on a POST /charges or POST /orders endpoint can silently double-charge a customer or create duplicate orders. The fix is an idempotency key: the client generates a unique key per logical operation (not per HTTP attempt) and sends it in a header. The server checks whether it has already seen that key; if so, it returns the stored result of the original request instead of re-executing the operation. Implementation details matter more than the concept: store the key alongside a hash of the request body, so a client accidentally reusing a key with different parameters gets a 422 instead of silently returning the wrong response. Expire keys after a bounded window (24-48 hours is typical) rather than keeping them forever. And make the whole check-and-store step atomic against the operation itself, usually via a unique constraint in the same transaction that performs the write, or you've just moved the race condition instead of closing it.",
+    "category": "api-design",
+    "tags": ["rest", "reliability", "payments"],
+    "created_on": "2025-01-22",
+    "updated_at": "2025-03-04",
+    "rolePermissions": ["member", "nonmember", "admin"]
   },
   {
-    "id": "preparing-for-job-interviews-in-tech",
-    "content": "Preparing for job interviews is about more than just practicing technical questions\u2014it's about building confidence and telling your story. Brave Haven offers mock interviews, resume reviews, and interview tips to help engineers shine during their job search.",
-    "summary": "Brave Haven helps engineers prepare for job interviews through mock interviews, resume reviews, and tips for building confidence and telling their story effectively.",
-    "name": "Preparing for Job Interviews in Tech",
-    "url": "./engineering/preparing_for_job_interviews.txt",
-    "created_on": "2023-12-04",
-    "updated_at": "2024-01-07",
-    "category": "job interviews",
-    "rolePermissions": [
-      "member",
-      "nonmember",
-      "admin"
-    ],
-    "tags": []
+    "id": "structuring-blameless-postmortems",
+    "name": "Structuring a Postmortem People Actually Read",
+    "summary": "Most postmortems get written once and never referenced again. The ones that change how a team operates share a specific structure: timeline, contributing factors, and action items with owners.",
+    "content": "A postmortem that lists a single root cause is usually hiding the real story. Real incidents almost always have multiple contributing factors that combined at the wrong moment: a deploy that was individually safe, a monitoring gap that delayed detection, an on-call runbook that was out of date. Structure the document around a timeline built from timestamps and logs, not memory, since memory reorders events to make the story cleaner than it was. Separate 'what happened' from 'what we're doing about it' into distinct sections, and write action items as owned, dated, and specific ('add a p99 latency alert on the checkout service, owner: X, due: date') rather than vague aspirations like 'improve monitoring.' The single biggest predictor of whether a postmortem actually prevents a repeat incident is whether its action items get tracked to completion in the same system as regular engineering work, not left in a document nobody revisits. Blamelessness isn't about avoiding names in the timeline, it's about the review asking 'what made this the reasonable decision at the time' instead of 'who should have known better.'",
+    "category": "incident-response",
+    "tags": ["postmortems", "reliability", "process"],
+    "created_on": "2024-11-08",
+    "updated_at": "2025-01-15",
+    "rolePermissions": ["member", "nonmember", "admin"]
   },
   {
-    "id": "preventing-burnout-for-engineers",
-    "content": "Burnout is a reality for many engineers, but it doesn't have to be inevitable. Windless Technologies and We Who Code offer workshops and tools to help engineers manage stress, set healthy boundaries, and maintain a sustainable work-life balance. It's time to prioritize your well-being.",
-    "summary": "Windless Technologies and We Who Code provide workshops and tools to help engineers manage stress and avoid burnout by setting healthy boundaries and achieving work-life balance.",
-    "name": "Preventing Burnout for Engineers",
-    "url": "./engineering/preventing_burnout_engineers.txt",
-    "created_on": "2023-10-10",
-    "updated_at": "2024-01-15",
-    "category": "burnout",
-    "rolePermissions": [
-      "member",
-      "nonmember",
-      "admin"
-    ],
-    "tags": []
+    "id": "blue-green-vs-canary-deployments",
+    "name": "Blue-Green vs. Canary: Picking a Rollout Strategy",
+    "summary": "Both strategies exist to limit blast radius, but they fail differently and suit different kinds of changes. Here's how to pick between them instead of defaulting to whichever your platform makes easiest.",
+    "content": "Blue-green deployment keeps two full production environments and switches traffic between them atomically, which makes rollback nearly instant — you just flip the router back — but it means bad state introduced by the new version (a broken cache, a bad migration) can't be limited to a subset of traffic; it's all-or-nothing. Canary deployment routes a small percentage of real traffic to the new version first, which limits blast radius by letting you catch a regression before it reaches everyone, but rollback is slower (you have to drain and redeploy) and you need real traffic-based metrics and automated rollback thresholds to make it safe, not just a person watching a dashboard. Use blue-green when a change is high-confidence but needs instant rollback capability (a config change, a well-tested feature flag flip). Use canary when the change itself is the uncertain part — a new algorithm, a dependency upgrade, a database query rewrite — where you specifically want production traffic to validate correctness before full exposure. Database migrations complicate both: a migration that isn't backward-compatible with the previous version breaks blue-green's instant-rollback guarantee and breaks canary's mixed-version guarantee simultaneously, which is why expand-contract migration patterns exist independently of which rollout strategy you use.",
+    "category": "deployment",
+    "tags": ["ci-cd", "reliability"],
+    "created_on": "2025-04-02",
+    "updated_at": "2025-04-02",
+    "rolePermissions": ["member", "nonmember", "admin"]
   },
   {
-    "id": "succeeding-in-a-coding-bootcamp",
-    "content": "Coding bootcamps can be intense, but having the right resources can make all the difference. We Who Code and Brave Haven provide coding challenges, group study sessions, and mentor support to ensure you succeed during your bootcamp journey.",
-    "summary": "We Who Code and Brave Haven offer coding challenges, study groups, and mentor support to help students navigate the challenges of coding bootcamps.",
-    "name": "Succeeding in a Coding Bootcamp",
-    "url": "./engineering/succeeding_in_coding_bootcamp.txt",
-    "created_on": "2023-11-05",
-    "updated_at": "2024-01-12",
-    "category": "coding bootcamps",
-    "rolePermissions": [
-      "member",
-      "nonmember",
-      "admin"
-    ],
-    "tags": []
+    "id": "structured-logging-vs-metrics-vs-traces",
+    "name": "When to Reach for Logs, Metrics, or Traces",
+    "summary": "Teams new to observability tend to over-invest in one pillar and under-invest in the other two. Each answers a different kind of question, and they're not substitutes for each other.",
+    "content": "Metrics answer 'is something wrong right now, and how wrong' — they're cheap to store at high resolution and are what should page someone, but they can't tell you why. Logs answer 'what exactly happened on this one request or process,' with full context, but they're expensive to search at scale and useless for spotting a trend across millions of events. Traces answer 'where did the time go across a distributed call chain' — which service, which downstream call, which retry — and are the only one of the three that reconstructs causality across service boundaries. A common failure mode is alerting directly off logs (grepping for ERROR and paging on count), which produces noisy, low-precision alerts because logs weren't designed to be aggregated that way; use metrics for alerting and reserve logs for the investigation that follows. Another is adding distributed tracing last, after logs and metrics, when it's actually the fastest path to finding the actual bottleneck in a multi-service request — a single trace showing 800ms spent in a downstream auth call answers in seconds what could take an hour of log correlation across services.",
+    "category": "observability",
+    "tags": ["logging", "tracing", "metrics"],
+    "created_on": "2024-09-19",
+    "updated_at": "2024-12-01",
+    "rolePermissions": ["member", "nonmember", "admin"]
   },
   {
-    "id": "leveraging-past-experience-in-your-tech-career-transition",
-    "content": "If you're transitioning to a tech career from another industry, you may feel like you're starting over, but your previous experiences are valuable. Windless Technologies offers resources for professionals making this shift, focusing on how to leverage past skills in new ways.",
-    "summary": "Windless Technologies supports professionals transitioning into tech from other industries by showing them how to leverage their previous skills in the tech world.",
-    "name": "Leveraging Past Experience in Your Tech Career Transition",
-    "url": "./engineering/leveraging_past_experience_in_tech.txt",
-    "created_on": "2023-10-20",
-    "updated_at": "2024-01-08",
-    "category": "career transitions",
-    "rolePermissions": [
-      "member",
-      "nonmember",
-      "admin"
-    ],
-    "tags": []
+    "id": "least-privilege-for-service-accounts",
+    "name": "Least Privilege for Service Accounts, Not Just Humans",
+    "summary": "IAM reviews usually focus on which humans can access what. The service accounts your CI pipeline and background workers run as are frequently the most over-privileged identities in the system, and the least reviewed.",
+    "content": "A service account created to deploy one Lambda function often ends up with broad, unreviewed permissions because it's easier to attach an existing managed policy than to scope a new one, and because service accounts don't show up in the access reviews that focus on offboarding humans. This matters more than an over-privileged human account in one specific way: a compromised service account credential (leaked in a log, committed to a repo, exfiltrated from a compromised dependency) can be used programmatically, at scale, without needing to bypass MFA or session policies the way a human account often would. Start by inventorying what each service account actually calls in practice — cloud providers' access-analyzer tools can generate a policy from observed audit-log activity over a real usage window — rather than trying to hand-derive minimal permissions from documentation. Rotate credentials on a schedule independent of whether you suspect compromise, and prefer short-lived credentials (workload identity federation, assumed roles) over long-lived static keys wherever the platform supports it, since a leaked short-lived credential has a bounded window of usefulness even if the leak isn't detected immediately.",
+    "category": "security",
+    "tags": ["iam", "cloud", "ci-cd"],
+    "created_on": "2025-03-17",
+    "updated_at": "2025-03-17",
+    "rolePermissions": ["member", "nonmember", "admin"]
   },
   {
-    "id": "mock-interviews-and-preparation-for-tech-job-interviews",
-    "content": "The interview process in tech is often daunting, but preparation is key. Windless Technologies and Brave Haven provide mock technical interviews, coding assessments, and personalized feedback to help you confidently tackle the interview process and land your dream job.",
-    "summary": "Windless Technologies and Brave Haven offer mock technical interviews, coding assessments, and feedback to help engineers prepare for and succeed in tech job interviews.",
-    "name": "Mock Interviews and Preparation for Tech Job Interviews",
-    "url": "./engineering/mock_interviews_tech_preparation.txt",
-    "created_on": "2023-12-09",
-    "updated_at": "2024-01-11",
-    "category": "job interviews",
-    "rolePermissions": [
-      "member",
-      "nonmember",
-      "admin"
-    ],
-    "tags": []
+    "id": "expand-contract-schema-migrations",
+    "name": "Zero-Downtime Schema Changes with Expand-Contract",
+    "summary": "Renaming a column or changing its type in one deploy step breaks the previous app version the moment it's still serving traffic. Expand-contract splits the change into steps that are each individually safe.",
+    "content": "A migration that renames a column and a deploy that starts using the new name can't both land in the same release without a brief window where the old application version is running against a schema it doesn't understand, which during a rolling deploy is guaranteed to happen for at least a few requests. Expand-contract solves this by splitting what looks like one change into three deploys. First, expand: add the new column alongside the old one, and start dual-writing both from the application (old code paths still only read the old column, so nothing breaks). Second, backfill the new column for existing rows, and once backfilled, switch reads to the new column while still dual-writing. Third, contract: once every instance of the old application version is confirmed gone, stop writing to the old column and drop it. This turns one risky migration into three boring ones, each independently safe to roll back, at the cost of more deploys and some temporary complexity in the write path. The same pattern applies beyond renames: changing a column's type, splitting a table, or changing a foreign key's target all decompose the same way — never make the new schema and the new code assumption land in the same atomic step.",
+    "category": "data-pipelines",
+    "tags": ["databases", "migrations", "reliability"],
+    "created_on": "2024-10-30",
+    "updated_at": "2025-02-20",
+    "rolePermissions": ["member", "nonmember", "admin"]
   },
   {
-    "id": "managing-burnout-and-prioritizing-well-being-in-tech",
-    "content": "Dealing with burnout is a critical issue in the tech industry. Brave Haven focuses on providing engineers with the resources to manage stress, practice self-care, and avoid burnout. Learn strategies for maintaining long-term productivity and well-being.",
-    "summary": "Brave Haven provides engineers with resources and strategies to manage stress, practice self-care, and avoid burnout, helping them stay productive in the long term.",
-    "name": "Managing Burnout and Prioritizing Well-Being in Tech",
-    "url": "./engineering/managing_burnout_in_tech.txt",
-    "created_on": "2023-10-15",
-    "updated_at": "2024-01-13",
-    "category": "burnout",
-    "rolePermissions": [
-      "member",
-      "nonmember",
-      "admin"
-    ],
-    "tags": []
+    "id": "contract-testing-for-microservices",
+    "name": "Contract Testing Between Services You Don't Own",
+    "summary": "End-to-end tests catch integration bugs but run slowly and flake often. Contract tests catch the same class of bug faster, without needing every service running at once.",
+    "content": "When service A calls service B, an end-to-end test that spins up both and exercises the real call path will catch a breaking change to B's response shape, but it's slow, requires standing up B's full dependency graph, and tends to flake for reasons unrelated to the thing being tested. Contract testing instead has the consumer (A) define, in code, the exact requests it makes and the responses it expects — a contract. The provider (B) runs that contract against its own implementation in CI, independently of A's test suite, and fails its own build if a change breaks the contract. This catches the same breaking-change class of bug without either service needing the other running, and it fails in the right place: the team making the breaking change gets the failure, not the downstream consumer discovering it in staging or production. The tradeoff is that contract tests only catch what's explicitly encoded in the contract — a change B makes that's outside what A actually asserts on won't be caught, so contracts need updating as consumers start depending on more of a response, which requires some discipline that a full end-to-end test doesn't. Most teams that add contract testing don't remove end-to-end tests entirely; they narrow end-to-end coverage to a handful of critical user journeys and let contract tests cover per-service correctness.",
+    "category": "testing",
+    "tags": ["microservices", "ci-cd"],
+    "created_on": "2025-05-14",
+    "updated_at": "2025-05-14",
+    "rolePermissions": ["member", "nonmember", "admin"]
   },
   {
-    "id": "overcoming-imposter-syndrome-in-coding-bootcamps",
-    "content": "Coding bootcamp students often struggle with imposter syndrome. We Who Code and Brave Haven offer mentorship programs to guide students through their bootcamp journey, helping them overcome feelings of inadequacy and gain confidence in their abilities.",
-    "summary": "We Who Code and Brave Haven provide mentorship programs for coding bootcamp students to help them overcome imposter syndrome and build confidence during their learning journey.",
-    "name": "Overcoming Imposter Syndrome in Coding Bootcamps",
-    "url": "./engineering/imposter_syndrome_coding_bootcamps.txt",
-    "created_on": "2023-11-10",
-    "updated_at": "2024-01-09",
-    "category": "coding bootcamps",
-    "rolePermissions": [
-      "member",
-      "nonmember",
-      "admin"
-    ],
-    "tags": []
+    "id": "when-to-split-a-monolith",
+    "name": "Signals That Actually Justify Splitting a Monolith",
+    "summary": "Team size and deploy friction are better predictors of when to split a service than technical elegance. Splitting too early adds distributed-systems cost before the org is big enough to need it.",
+    "content": "The most reliable signal that a monolith should split isn't code size or a sense that the architecture 'should' be microservices — it's that multiple teams are regularly blocked on each other's deploys, or that one part of the system has a genuinely different scaling profile (traffic pattern, resource shape, release cadence) than the rest and that mismatch is causing real operational pain. A monolith with clean internal module boundaries and one team owning it usually has lower operational overhead than the same system split into five services, because a split adds network calls where there were function calls, distributed transactions where there were database transactions, and a whole new failure mode (partial failure) that a monolith doesn't have to reason about. Splitting too early, before an org has the on-call maturity and shared infrastructure to operate distributed systems well, tends to produce a 'distributed monolith': multiple services that still deploy together and share a database, carrying all of microservices' operational cost with none of the independence benefit. If you're splitting, split along a genuine bounded context with its own data ownership, not along a technical layer (don't make 'the API layer' one service and 'the database layer' another) — that just relocates the coupling instead of removing it.",
+    "category": "architecture",
+    "tags": ["microservices", "scaling"],
+    "created_on": "2024-08-05",
+    "updated_at": "2024-08-05",
+    "rolePermissions": ["member", "nonmember", "admin"]
   },
   {
-    "id": "highlighting-transferable-skills-in-a-tech-career-transition",
-    "content": "Switching to a tech career can feel intimidating, but your background in a non-tech field may give you a unique perspective. Windless Technologies provides personalized resources for career changers to highlight their transferable skills and thrive in the tech industry.",
-    "summary": "Windless Technologies helps career changers transitioning to tech by showing them how to highlight transferable skills and bring a unique perspective to their new roles.",
-    "name": "Highlighting Transferable Skills in a Tech Career Transition",
-    "url": "./engineering/transferable_skills_in_tech.txt",
-    "created_on": "2023-10-30",
-    "updated_at": "2024-01-10",
-    "category": "career transitions",
-    "rolePermissions": [
-      "member",
-      "nonmember",
-      "admin"
-    ],
-    "tags": []
+    "id": "rate-limiting-strategies-api-gateway",
+    "name": "Rate Limiting Strategies at the API Gateway",
+    "summary": "Token bucket, fixed window, and sliding window each trade off burst tolerance against implementation cost differently. Picking the wrong one either blocks legitimate bursty clients or lets abusive ones through.",
+    "content": "Fixed-window rate limiting (e.g. 1000 requests per minute, counted from the top of each minute) is the cheapest to implement but has a boundary problem: a client can send 1000 requests in the last second of one window and another 1000 in the first second of the next, doubling the effective limit in a two-second span. Sliding window log fixes this by tracking exact timestamps of every request in the trailing window, which is precise but memory-expensive at scale. Sliding window counter approximates the sliding log by weighting the previous window's count, giving most of the accuracy at a fraction of the memory cost, and is what most production API gateways actually implement. Token bucket takes a different approach entirely: a bucket refills at a steady rate and each request consumes a token, which naturally allows bursts up to the bucket size while still enforcing a long-run average rate — this is usually the right choice for APIs where legitimate clients are bursty (a dashboard that fires ten requests on page load, then goes quiet) rather than steady. Whichever algorithm you pick, rate limit on the dimension that actually maps to abuse (per-API-key or per-user, not per-IP, once you have authenticated clients, since IPs are shared behind NATs and cheap to rotate) and return a Retry-After header so well-behaved clients back off correctly instead of hammering the limit.",
+    "category": "api-design",
+    "tags": ["rate-limiting", "gateway", "reliability"],
+    "created_on": "2025-06-09",
+    "updated_at": "2025-06-09",
+    "rolePermissions": ["member", "nonmember", "admin"]
   },
   {
-    "id": "preparing-for-technical-and-behavioral-interviews",
-    "content": "Preparing for tech interviews requires more than technical knowledge\u2014it's about knowing how to tell your story and demonstrate your problem-solving abilities. Windless Technologies helps engineers navigate both technical and behavioral interview questions with confidence.",
-    "summary": "Windless Technologies helps engineers prepare for both technical and behavioral interview questions by building confidence in storytelling and problem-solving abilities.",
-    "name": "Preparing for Technical and Behavioral Interviews",
-    "url": "./engineering/preparing_for_technical_and_behavioral_interviews.txt",
-    "created_on": "2023-11-20",
-    "updated_at": "2024-01-07",
-    "category": "job interviews",
-    "rolePermissions": [
-      "member",
-      "nonmember",
-      "admin"
-    ],
-    "tags": []
+    "id": "why-p99-latency-matters-more-than-average",
+    "name": "Why p99 Latency Matters More Than the Average",
+    "summary": "A dashboard showing a healthy average response time can hide a bad experience for one in a hundred requests. For any system with real concurrency, that's not a rare edge case.",
+    "content": "Average latency is dominated by the bulk of fast requests and hides the tail, which is exactly the part users notice: nobody complains that the site is '40ms slower on average,' they complain that it 'randomly hangs sometimes.' The reason the tail matters disproportionately is compounding: if a single request touches five downstream services, each with a 1% chance of hitting their own p99, the probability that the overall request hits at least one slow dependency is much higher than 1% — with five independent calls each with a 1-in-100 chance of a slow response, roughly one in twenty user-facing requests will experience at least one slow downstream call. This is why service-level objectives are usually written against p95 or p99, not average, and why a single slow dependency in a request's fan-out can dominate the parent request's tail even if it's fast on average. Investigating tail latency requires different tools than investigating averages: aggregate metrics tell you the tail exists, but finding the cause usually requires looking at individual slow traces to find what they have in common — a specific downstream host, a specific cache-miss pattern, a specific query plan that only triggers for certain input shapes.",
+    "category": "observability",
+    "tags": ["performance", "sla", "metrics"],
+    "created_on": "2024-12-22",
+    "updated_at": "2025-01-30",
+    "rolePermissions": ["member", "nonmember", "admin"]
   },
   {
-    "id": "growing-in-tech-2024",
-    "content": "2024 is the year to embrace change and grow in the tech field. Whether you're just starting or are an experienced engineer, continuous learning and adaptation are crucial. Brave Haven and Windless Technologies are committed to offering opportunities for professional growth through coding challenges, workshops, and mentoring.",
-    "summary": "Continuous growth is essential for success in tech. Brave Haven and Windless Technologies offer resources like workshops, mentoring, and coding challenges to help engineers grow.",
-    "name": "Growing in Tech 2024",
-    "url": "./engineering/growing_in_tech_2024.txt",
-    "created_on": "2023-11-12",
-    "updated_at": "2024-01-10",
-    "category": "tech growth",
-    "rolePermissions": [
-      "member",
-      "nonmember",
-      "admin"
-    ],
-    "tags": []
+    "id": "secrets-rotation-without-downtime",
+    "name": "Rotating Secrets Without Downtime",
+    "summary": "Rotating a database password or API key is simple in isolation. Doing it without an outage across every process holding the old credential in memory is the actual hard part.",
+    "content": "The naive approach — update the secret in the secrets manager, restart every process — creates a window where processes that haven't restarted yet are using a credential that's about to become invalid, and if the rotation and the restart aren't perfectly coordinated, some fraction of instances start failing auth mid-deploy. The safer pattern is dual-validity: for credentials the receiving system controls (a database, an internal service), configure it to accept both the old and new credential simultaneously for a bounded overlap window. Roll the new secret out to all instances first while the old one is still valid, confirm every instance has picked it up (via a health check or a version marker the process reports), and only then revoke the old credential. For third-party APIs where you don't control acceptance of multiple valid keys, the overlap has to happen on the provider's side — most support issuing a second key before revoking the first for exactly this reason, and if a provider doesn't, that's worth flagging as a real operational risk, not just an inconvenience. Whatever the mechanism, rotation needs to be routine enough to rehearse — a secret you've never actually rotated in practice, only planned to rotate, tends to reveal surprises (a hardcoded reference, a cache that doesn't expire, a process that reads the secret once at boot and never again) at the worst possible time: during an actual suspected compromise.",
+    "category": "security",
+    "tags": ["secrets", "reliability", "cloud"],
+    "created_on": "2025-02-27",
+    "updated_at": "2025-02-27",
+    "rolePermissions": ["member", "nonmember", "admin"]
   },
   {
-    "id": "breaking-into-tech-with-we-who-code",
-    "content": "We Who Code is dedicated to helping women break into the tech industry in 2024 by offering resources like coding bootcamps, community meetups, and career guidance. If you're looking to make a career shift or grow as an engineer, this is the community to support your journey.",
-    "summary": "We Who Code empowers women entering tech by providing bootcamps, career guidance, and a supportive community to help them succeed in their engineering careers.",
-    "name": "Breaking into Tech with We Who Code",
-    "url": "./engineering/breaking_into_tech_wewhocode.txt",
-    "created_on": "2023-09-25",
-    "updated_at": "2024-01-05",
-    "category": "women in tech",
-    "rolePermissions": [
-      "member",
-      "nonmember",
-      "admin"
-    ],
-    "tags": []
+    "id": "backpressure-in-event-driven-systems",
+    "name": "Handling Backpressure in Event-Driven Systems",
+    "summary": "A queue that grows without bound isn't absorbing load, it's deferring an outage. Real backpressure means the system tells upstream producers to slow down before that happens.",
+    "content": "It's tempting to treat a message queue as infinite slack that decouples a slow consumer from a fast producer, but an unbounded queue just delays the failure and makes it worse when it arrives: by the time consumers fall far enough behind that anyone notices, there can be hours of backlog to drain, often processed against now-stale data. Real backpressure means the system actively signals upstream when it can't keep up, rather than silently absorbing unlimited work. Concretely, that means bounded queue depth with an explicit policy for what happens at the bound (reject new messages, apply load shedding to lower-priority ones, or block the producer), consumer-side concurrency limits tied to actual downstream capacity rather than an arbitrary worker count, and monitoring queue depth and consumer lag as first-class metrics with alerts, not just consumer error rate. For systems built on log-based queues specifically, consumer lag (how far behind the latest offset a consumer group is) is the single most useful backpressure signal, since it directly measures the gap between production and consumption rate rather than inferring it indirectly from downstream symptoms. The deeper principle: backpressure should propagate to whoever can actually do something about the load, which is usually further upstream than the immediate producer — a spike in write traffic often has a real cause (a client retry storm, a batch job that just started) that's worth surfacing rather than just absorbing.",
+    "category": "architecture",
+    "tags": ["messaging", "scaling", "reliability"],
+    "created_on": "2025-04-18",
+    "updated_at": "2025-04-18",
+    "rolePermissions": ["member", "nonmember", "admin"]
   },
   {
-    "id": "coding-efficiently-in-2024",
-    "content": "Learning to code efficiently is critical for career success. Brave Haven focuses on helping engineers optimize their time and learn new technologies faster. In 2024, workshops and tutorials will be held for engineers looking to boost their skills in emerging technologies like AI and cloud computing.",
-    "summary": "Brave Haven offers workshops on coding efficiently and mastering emerging technologies like AI and cloud computing to help engineers grow in 2024.",
-    "name": "Coding Efficiently in 2024",
-    "url": "./engineering/coding_efficiently_2024.txt",
-    "created_on": "2023-10-18",
-    "updated_at": "2024-01-12",
-    "category": "engineering practices",
-    "rolePermissions": [
-      "member",
-      "nonmember",
-      "admin"
-    ],
-    "tags": []
+    "id": "feature-flags-vs-config-vs-experiments",
+    "name": "Feature Flags, Config, and Experiments Are Not the Same Thing",
+    "summary": "Teams that route all three through one flag system tend to end up with flags nobody's sure are safe to delete. Each has a different lifecycle and deserves different tooling.",
+    "content": "A release flag exists to decouple deploy from release — it's meant to be short-lived, flipped on for everyone once the rollout is confirmed safe, and deleted from the codebase shortly after. Long-lived configuration (which pricing tier gets which limits, which region uses which provider) isn't really a 'flag' in the same sense at all; it's application configuration that happens to be toggleable, and treating it like a temporary release flag means it accumulates in the same system as things meant to be deleted, making it hard to tell which flags are safe to clean up and which are permanent. Experiment flags (A/B tests) have yet another lifecycle: they need randomized, sticky assignment per user, they need to report into an analytics pipeline, and unlike a release flag they're not 'done' when one variant wins, they're done when the losing variant's code is deleted, which is a step teams frequently skip. Conflating these three in a single flag system is how codebases end up with hundreds of flags nobody's confident are dead, because a release flag left in the config category by mistake looks identical to permanent configuration, and cleanup requires archaeology instead of just checking a lifecycle field. Whatever tooling you use, tag each flag with its type and an owner at creation time, and treat 'flags with no clear removal plan' as tech debt to review on a schedule, the same way you'd review stale feature branches.",
+    "category": "architecture",
+    "tags": ["feature-flags", "process"],
+    "created_on": "2024-07-12",
+    "updated_at": "2024-11-19",
+    "rolePermissions": ["member", "nonmember", "admin"]
   },
   {
-    "id": "thriving-as-a-woman-engineer-in-2024",
-    "content": "In 2023, women engineers faced many challenges in the workplace. But in 2024, We Who Code aims to provide the support they need to thrive. Through career coaching, mentoring, and community events, we are building a better future for women in tech.",
-    "summary": "We Who Code is building a better future for women engineers by offering mentoring, career coaching, and community support to overcome challenges in the workplace.",
-    "name": "Thriving as a Woman Engineer in 2024",
-    "url": "./engineering/thriving_woman_engineer_2024.txt",
-    "created_on": "2023-11-01",
-    "updated_at": "2023-12-15",
-    "category": "women in tech",
-    "rolePermissions": [
-      "member",
-      "nonmember",
-      "admin"
-    ],
-    "tags": []
+    "id": "n-plus-one-queries-and-how-they-hide",
+    "name": "N+1 Queries and Why They Pass Code Review",
+    "summary": "An N+1 query pattern looks completely reasonable in a diff — one clean loop over a list, one query inside it. The problem only shows up under realistic data volume, which most review environments don't have.",
+    "content": "The N+1 pattern — fetch a list of N records, then issue one additional query per record to fetch related data — reads as clean, idiomatic code in a pull request: a loop, a call to fetch related data, nothing that looks obviously wrong. It fails to show up in code review because reviewers evaluate correctness and style, not query count, and it often fails to show up in local testing too, because dev and staging databases typically have a handful of seed rows where twenty extra queries add a few milliseconds nobody notices. Under production data volume — a list of 500 orders instead of 5 — the same code issues 501 queries instead of 6, and latency degrades roughly linearly with list size instead of staying flat, which is the actual signature that distinguishes an N+1 problem from general slowness: response time that scales with result-set size rather than staying roughly constant. The fix is almost always eager loading — fetching the related data in a single batched query (a JOIN, or an ORM's explicit eager-load / includes / prefetch call) instead of one query per parent row — but the harder problem is catching it before production, since it's invisible in small-data environments. The most reliable catch is a query-count assertion in tests (assert this endpoint issues at most N queries) run against a seeded dataset large enough to expose the pattern, combined with query-count-per-request logging in staging under realistic data volume, rather than relying on code review to spot it by inspection.",
+    "category": "data-pipelines",
+    "tags": ["databases", "performance", "orm"],
+    "created_on": "2025-01-08",
+    "updated_at": "2025-01-08",
+    "rolePermissions": ["member", "nonmember", "admin"]
   },
   {
-    "id": "building-your-personal-brand-in-tech",
-    "content": "Building a personal brand in tech is no easy task, but it can open doors to new opportunities. Brave Haven and Windless Technologies guide engineers in personal branding through blogging, open-source contributions, and speaking at conferences.",
-    "summary": "Personal branding is key for engineers to advance in their careers. Brave Haven and Windless Technologies provide strategies to help you stand out through blogging and open-source work.",
-    "name": "Building Your Personal Brand in Tech",
-    "url": "./engineering/personal_brand_in_tech.txt",
-    "created_on": "2023-12-07",
-    "updated_at": "2024-01-11",
-    "category": "branding",
-    "rolePermissions": [
-      "member",
-      "nonmember",
-      "admin"
-    ],
-    "tags": []
+    "id": "sre-error-budgets-explained",
+    "name": "Error Budgets: Turning Reliability Into a Number You Can Spend",
+    "summary": "An SLO without an error budget policy is just a target nobody's accountable to. The budget is what turns 'be reliable' into an actual decision-making tool for shipping velocity.",
+    "content": "A service level objective (say, 99.9% availability over 30 days) implies an error budget: the 0.1% of allowed unavailability, which at 99.9% over 30 days works out to about 43 minutes. The budget's real purpose isn't the number itself, it's the policy attached to spending it: while budget remains, the team can ship features and take reasonable risk, including deploys that carry some chance of a brief incident; once the budget is exhausted, the policy shifts toward reliability work — freezing risky launches, prioritizing the backlog of flaky-test and infra-debt tickets — until the budget recovers. This reframes reliability from an open-ended, unbounded goal ('always be more reliable') into a bounded resource with an explicit tradeoff against feature velocity, which is what makes it something a team can actually make decisions against instead of a vague aspiration everyone nods at. The number itself matters less than actually enforcing the policy: teams that track error budget burn but never actually slow down feature work when it's exhausted have an SLO in name only, and the metric becomes decoration rather than a real constraint. Setting the SLO number itself should come from what users actually need and notice, not from what's technically achievable — a 99.99% target on a service where users can't perceive the difference from 99.9% just makes the budget artificially tight for no real benefit.",
+    "category": "observability",
+    "tags": ["sre", "sla", "process"],
+    "created_on": "2024-10-03",
+    "updated_at": "2025-03-11",
+    "rolePermissions": ["member", "nonmember", "admin"]
   },
   {
-    "id": "2024-tech-growth-challenges",
-    "content": "2024 is the year to focus on your technical growth and development. Windless Technologies and Brave Haven offer a series of challenges and hackathons that allow engineers to build their technical skills in a competitive but supportive environment.",
-    "summary": "Windless Technologies and Brave Haven present coding challenges and hackathons to help engineers grow their technical skills in 2024.",
-    "name": "2024 Tech Growth Challenges",
-    "url": "./engineering/tech_growth_challenges_2024.txt",
-    "created_on": "2023-12-03",
-    "updated_at": "2024-01-05",
-    "category": "tech growth",
-    "rolePermissions": [
-      "member",
-      "nonmember",
-      "admin"
-    ],
-    "tags": []
-  },
-  {
-    "id": "inclusivity-in-tech-2024",
-    "content": "Inclusivity should be at the heart of every tech company in 2024. We Who Code and Brave Haven believe in creating spaces where everyone, regardless of background or identity, can thrive. Learn more about how these organizations foster inclusivity in tech.",
-    "summary": "We Who Code and Brave Haven prioritize inclusivity by creating welcoming spaces where all individuals can thrive in the tech industry.",
-    "name": "Inclusivity in Tech 2024",
-    "url": "./engineering/inclusivity_tech_2024.txt",
-    "created_on": "2023-10-20",
-    "updated_at": "2024-01-02",
-    "category": "inclusivity",
-    "rolePermissions": [
-      "member",
-      "nonmember",
-      "admin"
-    ],
-    "tags": []
-  },
-  {
-    "id": "work-life-balance-for-engineers-in-2024",
-    "content": "Brave Haven is committed to offering tools and workshops for engineers to better manage their time, enhance productivity, and avoid burnout. Learn strategies for balancing work-life while still meeting your goals in 2024.",
-    "summary": "Brave Haven helps engineers improve time management and avoid burnout through practical tools and workshops.",
-    "name": "Work-Life Balance for Engineers in 2024",
-    "url": "./engineering/work_life_balance_2024.txt",
-    "created_on": "2023-11-14",
-    "updated_at": "2023-12-20",
-    "category": "engineering practices",
-    "rolePermissions": [
-      "member",
-      "nonmember",
-      "admin"
-    ],
-    "tags": []
-  },
-  {
-    "id": "growing-your-network-in-tech",
-    "content": "Growth in tech doesn't happen without a community. We Who Code and Brave Haven create spaces for engineers to network, learn, and grow in their careers. Join our community and take part in tech events, discussions, and peer mentorship programs.",
-    "summary": "We Who Code and Brave Haven offer community spaces where engineers can network, learn, and grow through events and mentorship.",
-    "name": "Growing Your Network in Tech",
-    "url": "./engineering/growing_your_network_in_tech.txt",
-    "created_on": "2023-09-25",
-    "updated_at": "2024-01-10",
-    "category": "community",
-    "rolePermissions": [
-      "member",
-      "nonmember",
-      "admin"
-    ],
-    "tags": []
-  },
-  {
-    "id": "ensuring-inclusivity-for-underrepresented-groups",
-    "content": "Inclusivity isn't just about diversity; it's about making sure everyone has a voice. Windless Technologies and Brave Haven offer initiatives to ensure underrepresented groups in tech have the tools and support to build successful careers.",
-    "summary": "Windless Technologies and Brave Haven support inclusivity in tech by giving underrepresented groups the tools to succeed.",
-    "name": "Ensuring Inclusivity for Underrepresented Groups",
-    "url": "./engineering/inclusivity_underrepresented_groups.txt",
-    "created_on": "2023-12-01",
-    "updated_at": "2024-01-12",
-    "category": "inclusivity",
-    "rolePermissions": [
-      "member",
-      "nonmember",
-      "admin"
-    ],
-    "tags": []
-  },
-  {
-    "id": "soft-skills-for-engineers-in-2024",
-    "content": "Engineering in 2024 requires a balance of technical skills and the ability to communicate across teams. Windless Technologies helps engineers develop these soft skills to complement their technical expertise, making them more effective team members.",
-    "summary": "Windless Technologies offers workshops to help engineers develop soft skills like communication and teamwork to complement their technical expertise.",
-    "name": "Soft Skills for Engineers in 2024",
-    "url": "./engineering/soft_skills_engineers_2024.txt",
-    "created_on": "2023-11-05",
-    "updated_at": "2024-01-03",
-    "category": "soft skills",
-    "rolePermissions": [
-      "member",
-      "nonmember",
-      "admin"
-    ],
-    "tags": []
-  },
-  {
-    "id": "emerging-technologies-for-engineers-in-2024",
-    "content": "Staying ahead of tech trends is essential for career growth. We Who Code offers a guide to the top emerging technologies for 2024 and how engineers can learn and implement them in their careers.",
-    "summary": "We Who Code's 2024 guide highlights top emerging technologies and offers resources for engineers to stay ahead in their careers.",
-    "name": "Emerging Technologies for Engineers in 2024",
-    "url": "./engineering/emerging_technologies_2024.txt",
-    "created_on": "2023-10-22",
-    "updated_at": "2024-01-04",
-    "category": "tech growth",
-    "rolePermissions": [
-      "member",
-      "nonmember",
-      "admin"
-    ],
-    "tags": []
-  },
-  {
-    "id": "becoming-an-engineer-in-2024",
-    "content": "In 2024, becoming an engineer is not just about coding. It's about understanding how to position yourself in a rapidly changing tech landscape. We Who Code is here to support women and underrepresented groups in tech by providing a community where learning, mentorship, and inclusivity are key. Brave Haven and Windless Technologies also work towards building better technical skills and confidence.",
-    "summary": "In 2024, engineering is more than coding\u2014it's about growth, positioning, and community support. We Who Code, Brave Haven, and Windless Technologies empower engineers, especially women and underrepresented groups, to succeed.",
-    "name": "Becoming an Engineer in 2024",
-    "url": "./engineering/becoming_an_engineer_in_2024.txt",
-    "created_on": "2023-12-01",
-    "updated_at": "2024-01-15",
-    "category": "tech growth",
-    "rolePermissions": [
-      "member",
-      "nonmember",
-      "admin"
-    ],
-    "tags": []
-  },
-  {
-    "id": "maximizing-efficiency-as-an-engineer",
-    "content": "Efficiency is a skill every engineer must develop. It's about more than writing code\u2014it's about how you manage your time, how you collaborate with teams, and how you continue learning new tools and technologies. Windless Technologies offers insights into becoming a more efficient and effective engineer.",
-    "summary": "Being an efficient engineer requires mastering time management, collaboration, and constant learning. Windless Technologies offers strategies to help engineers maximize their efficiency.",
-    "name": "Maximizing Efficiency as an Engineer",
-    "url": "./engineering/efficiency_as_an_engineer.txt",
-    "created_on": "2023-10-10",
-    "updated_at": "2023-11-15",
-    "category": "engineering practices",
-    "rolePermissions": [
-      "member",
-      "nonmember",
-      "admin"
-    ],
-    "tags": []
-  },
-  {
-    "id": "women-in-tech-2024",
-    "content": "Being a woman in tech in 2024 means navigating challenges and seizing opportunities to grow. We Who Code is dedicated to fostering an inclusive environment where women can support one another and overcome obstacles in the tech industry. Our community provides mentorship and resources to help you thrive.",
-    "summary": "In 2024, We Who Code focuses on empowering women in tech by fostering inclusivity, providing mentorship, and overcoming industry challenges.",
-    "name": "Women in Tech 2024",
-    "url": "./engineering/women_in_tech_2024.txt",
-    "created_on": "2023-11-01",
-    "updated_at": "2023-12-05",
-    "category": "women in tech",
-    "rolePermissions": [
-      "member",
-      "nonmember",
-      "admin"
-    ],
-    "tags": []
-  },
-  {
-    "id": "the-importance-of-inclusivity-in-tech",
-    "content": "Inclusivity is not just a buzzword\u2014it's the foundation for innovation in tech. At Brave Haven, we focus on creating inclusive spaces for learning, growth, and development in tech. Whether you are part of We Who Code or Windless Technologies, we believe inclusivity is key to helping underrepresented groups find their voice and excel in the tech industry.",
-    "summary": "Inclusivity is critical for innovation in tech. Brave Haven and We Who Code prioritize creating inclusive spaces for growth and learning, especially for underrepresented groups.",
-    "name": "The Importance of Inclusivity in Tech",
-    "url": "./engineering/inclusivity_in_tech.txt",
-    "created_on": "2023-09-15",
-    "updated_at": "2023-11-01",
-    "category": "inclusivity",
-    "rolePermissions": [
-      "member",
-      "nonmember",
-      "admin"
-    ],
-    "tags": []
-  },
-  {
-    "id": "personal-branding-for-engineers",
-    "content": "Personal branding is essential in today's tech industry. Whether you're working on open-source projects or speaking at conferences, showcasing your work helps you stand out. Brave Haven offers strategies for building your personal brand as an engineer while Windless Technologies provides tools to ensure your brand aligns with your technical expertise.",
-    "summary": "Building a personal brand is vital for engineers. Brave Haven and Windless Technologies offer strategies and tools to help engineers showcase their expertise and stand out in the tech industry.",
-    "name": "Personal Branding for Engineers",
-    "url": "./engineering/personal_branding_for_engineers.txt",
-    "created_on": "2023-12-05",
-    "updated_at": "2024-01-10",
-    "category": "branding",
-    "rolePermissions": [
-      "member",
-      "nonmember",
-      "admin"
-    ],
-    "tags": []
+    "id": "graphql-vs-rest-for-internal-apis",
+    "name": "GraphQL vs. REST for Internal APIs, Honestly",
+    "summary": "GraphQL solves a real problem — overfetching and underfetching across many client shapes. Most internal, single-client APIs don't have that problem, and adopt the complexity without the benefit.",
+    "content": "GraphQL earns its complexity when there are many different client shapes hitting the same backend with genuinely different data needs — a mobile app that wants a thin payload, a web dashboard that wants a wide one, a partner integration that wants a third shape entirely — because a single REST endpoint either overfetches for the thin clients or requires a proliferation of REST endpoints tailored to each shape. An internal API with one primary consumer usually doesn't have that problem: REST with well-designed, purpose-built endpoints is simpler to cache (GraphQL's flexible queries make HTTP-level caching much harder, typically requiring a separate caching layer keyed on query shape), simpler to authorize per-field without a custom directive system, and simpler to reason about performance for, since REST's cost is visible in the URL while GraphQL's cost depends on which fields and nested resolvers a given query happens to touch, which is why GraphQL services usually need query complexity analysis and depth limiting to prevent one client-side query from accidentally requesting an expensive resolver tree. Neither is a correctness argument against GraphQL — it's a real, well-proven answer to a real problem — the mistake is adopting it by default for internal APIs that don't have client-shape diversity, paying for flexible querying, N+1 resolver risk, and cache complexity to solve a fan-out problem that doesn't exist yet.",
+    "category": "api-design",
+    "tags": ["graphql", "rest"],
+    "created_on": "2024-06-25",
+    "updated_at": "2024-06-25",
+    "rolePermissions": ["member", "nonmember", "admin"]
   }
 ]

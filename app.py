@@ -44,13 +44,15 @@ login_manager.init_app(app)
 
 es = Search()
 
-SITE_NAME = 'Elastic Search Blog'
-SITE_TAGLINE = 'Elasticsearch-powered search & discovery for your blog'
+SITE_NAME = 'RetrievalKit'
+SITE_TAGLINE = 'Hybrid search & RAG retrieval on the Elasticsearch you already run'
 SITE_DESCRIPTION = (
-    'Elastic Search Blog is a self-hostable search-and-discovery layer '
-    'for blogs and documentation sites: relevance-ranked full-text '
-    'search, faceted filtering, and related-article recommendations, '
-    'built on Elasticsearch and managed from a lightweight admin panel.'
+    'RetrievalKit is self-hostable hybrid retrieval infrastructure for '
+    'engineering teams building RAG pipelines and AI agents on '
+    'Elasticsearch — combining BM25 lexical search with semantic '
+    'retrieval via Elasticsearch’s built-in inference, so you don’t '
+    'adopt a second vector database next to the search cluster you '
+    'already operate.'
 )
 
 # Elasticsearch highlighting wraps matched terms with these markers. They
@@ -85,36 +87,35 @@ def index():
     )
 
 
+def _lexical_query(parsed_query, filters):
+    must = (
+        {
+            'multi_match': {
+                'query': parsed_query,
+                'fields': ['name^2', 'summary', 'content'],
+                'fuzziness': 'AUTO',
+            }
+        }
+        if parsed_query else {'match_all': {}}
+    )
+    return {'bool': {'must': must, **filters}}
+
+
+def _semantic_query(parsed_query, filters):
+    must = (
+        {'semantic': {'field': 'content_semantic', 'query': parsed_query}}
+        if parsed_query else {'match_all': {}}
+    )
+    return {'bool': {'must': must, **filters}}
+
+
 @app.post('/')
 def handle_search():
     query = request.form.get('query', '')
     filters, parsed_query = extract_filters(query)
     from_ = request.form.get('from_', type=int, default=0)
 
-    if parsed_query:
-        search_query = {
-            'must': {
-                'multi_match': {
-                    'query': parsed_query,
-                    'fields': ['name^2', 'summary', 'content'],
-                    'fuzziness': 'AUTO',
-                }
-            }
-        }
-    else:
-        search_query = {
-            'must': {
-                'match_all': {}
-            }
-        }
-
-    results = es.search(
-        query={
-            'bool': {
-                **search_query,
-                **filters
-            }
-        },
+    search_kwargs = dict(
         highlight={
             'pre_tags': [_HL_OPEN],
             'post_tags': [_HL_CLOSE],
@@ -143,8 +144,36 @@ def handle_search():
             },
         },
         size=5,
-        from_=from_
+        from_=from_,
     )
+
+    if es.semantic_enabled:
+        # Hybrid retrieval: BM25 lexical relevance and Elasticsearch's
+        # built-in semantic retrieval, merged with Reciprocal Rank Fusion.
+        # This is the actual product — a query like "why do requests
+        # start failing under load" should surface a doc about connection
+        # pool exhaustion even if it never says "requests" or "failing".
+        results = es.search(
+            retriever={
+                'rrf': {
+                    'retrievers': [
+                        {'standard': {'query': _lexical_query(parsed_query, filters)}},
+                        {'standard': {'query': _semantic_query(parsed_query, filters)}},
+                    ],
+                    'rank_window_size': 50,
+                    'rank_constant': 20,
+                }
+            },
+            **search_kwargs,
+        )
+    else:
+        # This cluster has no semantic inference endpoint available (see
+        # the fallback in Search.create_index) — lexical-only, same as
+        # before.
+        results = es.search(
+            query=_lexical_query(parsed_query, filters),
+            **search_kwargs,
+        )
 
     for hit in results['hits']['hits']:
         hit['display_name'] = highlighted_field(hit, 'name', hit['_source']['name'])
@@ -173,10 +202,10 @@ def handle_search():
         total=total, aggs=aggs,
         page_title=f'{SITE_NAME} – {SITE_TAGLINE}',
         meta_description=(
-            f'{total} article{"s" if total != 1 else ""} found for '
-            f'"{query}" in the Elasticsearch-powered article index.'
+            f'{total} document{"s" if total != 1 else ""} found for '
+            f'"{query}" via hybrid lexical and semantic retrieval.'
             if query else
-            'Browse every indexed article, faceted by category, tag, '
+            'Browse every indexed document, faceted by category, tag, '
             'and year.'
         ),
     )
@@ -291,7 +320,7 @@ def admin_login():
     return render_template(
         'admin/login.html', form=form, error=error,
         page_title=f'Admin Login – {SITE_NAME}',
-        meta_description='Sign in to manage Elastic Search Blog posts.',
+        meta_description='Sign in to manage RetrievalKit’s indexed documents.',
     )
 
 
@@ -310,7 +339,7 @@ def admin_dashboard():
     return render_template(
         'admin/dashboard.html', posts=posts,
         page_title=f'Manage Posts – {SITE_NAME}',
-        meta_description='Create, edit, and remove Elastic Search Blog posts.',
+        meta_description='Create, edit, and remove RetrievalKit’s indexed documents.',
     )
 
 
@@ -348,7 +377,7 @@ def admin_new_post():
     return render_template(
         'admin/post_form.html', form=form, mode='new', post=None,
         page_title=f'New Post – {SITE_NAME}',
-        meta_description='Write a new Elastic Search Blog post.',
+        meta_description='Add a new document to the RetrievalKit index.',
     )
 
 
@@ -385,7 +414,7 @@ def admin_edit_post(id):
     return render_template(
         'admin/post_form.html', form=form, mode='edit', post=post,
         page_title=f'Edit “{post["name"]}” – {SITE_NAME}',
-        meta_description=f'Edit the Elastic Search Blog post “{post["name"]}”.',
+        meta_description=f'Edit the RetrievalKit document “{post["name"]}”.',
     )
 
 

@@ -3,10 +3,10 @@
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>{{ page_title | default('Elastic Search Blog – Elasticsearch-Powered Article Search') }}</title>
+        <title>{{ page_title | default('RetrievalKit – Hybrid Search & RAG Retrieval on Elasticsearch') }}</title>
         <meta
             name="description"
-            content="{{ meta_description | default('An Elasticsearch-powered blog search and discovery platform built with Flask, featuring full-text search, filters, and faceted navigation.') }}"
+            content="{{ meta_description | default('RetrievalKit is self-hostable hybrid retrieval infrastructure for RAG pipelines and AI agents, combining BM25 and semantic search on the Elasticsearch cluster you already run.') }}"
         />
         <link
             href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
@@ -14,28 +14,29 @@
             integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
             crossorigin="anonymous"
         />
+        <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet" />
     </head>
     <body>
         <div class="container">
             <nav
-                class="navbar bg-dark border-bottom border-body mb-3"
+                class="navbar rk-navbar border-bottom border-body mb-3"
                 data-bs-theme="dark"
             >
                 <div class="container-fluid">
-                    <a class="navbar-brand" href="{{ url_for('index') }}">
+                    <a class="navbar-brand rk-brand" href="{{ url_for('index') }}">
                         <img
-                            src="{{ url_for('static', filename='elastic-logo.svg') }}"
-                            alt="Elastic Search Blog logo"
-                            width="30"
-                            height="24"
-                            class="d-inline-block align-text-top"
+                            src="{{ url_for('static', filename='retrievalkit-mark.svg') }}"
+                            alt="RetrievalKit logo"
+                            width="26"
+                            height="26"
+                            class="d-inline-block align-text-top me-2"
                         />
-                        Elastic Search Blog
+                        RetrievalKit
                     </a>
                     <ul class="navbar-nav flex-row ms-auto">
                         {% if current_user.is_authenticated %}
                             <li class="nav-item me-3">
-                                <a class="nav-link" href="{{ url_for('admin_dashboard') }}">Manage posts</a>
+                                <a class="nav-link" href="{{ url_for('admin_dashboard') }}">Manage documents</a>
                             </li>
                             <li class="nav-item">
                                 <form method="POST" action="{{ url_for('admin_logout') }}" class="d-inline">

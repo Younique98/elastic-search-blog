@@ -1,12 +1,12 @@
-"""File-backed content store for blog posts.
+"""File-backed content store for indexed documents.
 
-data.json is the single source of truth for post content — the same file
-the `flask reindex` CLI command bulk-loads into Elasticsearch. The admin
-UI (see the /admin routes in app.py) reads and writes this file directly
-so that a post created or edited through the browser is immediately
-reflected both on disk and in the live Elasticsearch index, without
-requiring a manual reindex. `flask reindex` remains available to rebuild
-the index from scratch (e.g. after changing index settings/mappings).
+data.json is the single source of truth for document content — the same
+file the `flask reindex` CLI command bulk-loads into Elasticsearch. The
+admin UI (see the /admin routes in app.py) reads and writes this file
+directly so that a document created or edited through the browser is
+immediately reflected both on disk and in the live Elasticsearch index,
+without requiring a manual reindex. `flask reindex` remains available to
+rebuild the index from scratch (e.g. after changing index settings/mappings).
 
 Writes are atomic (write-to-temp-then-rename) so a crash mid-write can
 never leave data.json truncated or corrupted, and are serialized with a
