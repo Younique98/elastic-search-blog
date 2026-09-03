@@ -35,6 +35,14 @@
   --rk-accent-soft-bg: rgba(79, 209, 197, 0.1);
   --rk-accent-soft-border: rgba(79, 209, 197, 0.28);
 
+  /* Same soft-bg/soft-border recipe as --rk-accent, just a different
+     hue — so the one destructive action in the product reads as part
+     of the same restrained system instead of a mismatched, separately
+     -invented red. Verified 6.7:1 on --rk-surface. */
+  --rk-danger: #f87171;
+  --rk-danger-soft-bg: rgba(248, 113, 113, 0.1);
+  --rk-danger-soft-border: rgba(248, 113, 113, 0.28);
+
   --rk-radius-sm: 6px;
   --rk-radius: 10px;
   --rk-radius-lg: 14px;
@@ -415,14 +423,14 @@ select:focus-visible,
 }
 
 .btn-outline-danger {
-  color: #f2a29a;
-  border-color: #6b3730;
+  color: var(--rk-danger);
+  border-color: var(--rk-danger-soft-border);
   background: transparent;
 }
 .btn-outline-danger:hover {
-  background: rgba(220, 90, 70, 0.12);
-  border-color: #dc5a46;
-  color: #f2a29a;
+  background: var(--rk-danger-soft-bg);
+  border-color: var(--rk-danger);
+  color: var(--rk-danger);
 }
 
 .btn-outline-secondary {
@@ -502,8 +510,8 @@ select:focus-visible,
   background-color: var(--rk-surface);
 }
 .alert-danger {
-  border-color: #6b3730;
-  color: #f2a29a;
+  border-color: var(--rk-danger-soft-border);
+  color: var(--rk-danger);
 }
 .alert-success {
   border-color: #2f6b47;
