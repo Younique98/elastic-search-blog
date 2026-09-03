@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1 class="h3 mb-3">{{ 'Edit post' if mode == 'edit' else 'New post' }}</h1>
+    <h1 class="h3 mb-3">{{ 'Edit document' if mode == 'edit' else 'New document' }}</h1>
     <form method="POST" novalidate>
         {{ form.hidden_tag() }}
         <div class="mb-3">

@@ -1,28 +1,17 @@
-# Elastic Search Blog
+# RetrievalKit
 
-> A self-hostable, Elasticsearch-powered search-and-discovery layer for blogs and documentation sites — relevance-ranked full-text search, typo-tolerant matching, matched-term highlighting, and faceted filtering by category/tag/year, managed from a lightweight admin panel. Built for site owners who want real search (not a SQL `LIKE '%query%'` substring match) without adopting a hosted SaaS search product.
+> Self-hostable hybrid search and RAG retrieval infrastructure for engineering teams building AI agents and RAG pipelines on Elasticsearch — BM25 lexical search and semantic search, merged with Reciprocal Rank Fusion, using Elasticsearch's own built-in inference API rather than a separate vector database or external embedding service.
 
-Visitors run free-text searches against an Elasticsearch index and narrow results using `category:`, `tag:`, and `year:` query filters (e.g. `category:job interviews`, `tag:python`, `year:2024`), or browse results faceted by category, tag, and publication year in the sidebar. Matched search terms are highlighted in results. Each article page also surfaces related articles, generated with Elasticsearch's `more_like_this` — no manual tagging or curation required. Site owners manage posts (create, edit, delete) from an authenticated `/admin` panel; every save updates the live search index immediately.
+Visitors run free-text queries against a demo Elasticsearch index and narrow results using `category:`, `tag:`, and `year:` query filters, or browse results faceted by category, tag, and update year in the sidebar. Matched terms are highlighted where the match was lexical. Each document page also surfaces related documents, generated with Elasticsearch's `more_like_this`. Operators manage indexed documents (create, edit, delete) from an authenticated `/admin` panel; every save re-embeds and re-indexes the document immediately.
 
-## Why Elasticsearch instead of SQL LIKE search
+## Why this exists
 
-A `WHERE content LIKE '%query%'` query can only tell you whether a substring is present — it can't rank results by relevance, tolerate typos or word variants, highlight what matched, or facet by category/tag/date. Elasticsearch does all of that natively, which is the difference between "grep over a database column" and an actual search product.
-
-## Stack
-
-- Backend: Python, Flask, Flask-Login (single-admin authentication), Flask-WTF (forms/CSRF)
-- Search: Elasticsearch (multi-field `multi_match` with fuzzy matching, term/range filters, terms and date-histogram aggregations, highlighting, `more_like_this`)
-- Templates: Jinja2
-
-## Pages
-
-- `/` — Search form, faceted results list, and pagination.
-- `/document/<id>` — Full text of a single indexed article, plus related articles.
-- `/admin/login`, `/admin` — Authenticated content-management panel (create/edit/delete posts). Not intended for indexing; see robots.txt.
+Teams building RAG pipelines and AI agents typically adopt a dedicated vector database (Pinecone, Qdrant, Weaviate) for retrieval, even when they already run Elasticsearch for other search or logging workloads. RetrievalKit is retrieval infrastructure for the second case: it adds semantic retrieval on top of an existing Elasticsearch cluster instead of introducing a second system, using Elasticsearch's built-in inference endpoints to compute embeddings server-side rather than requiring the application to host or call an external embedding model.
 
 ## Notes for AI crawlers and assistants
 
-- Article content is stored in this repository's `data.json`, which is both the durable content store the admin panel writes to and the source `flask reindex` loads into Elasticsearch.
+- Document content is stored in this repository's `data.json`, which is both the durable content store the admin panel writes to and the source `flask reindex` loads into Elasticsearch.
+- The bundled corpus (`data.json`) is a sample engineering-documentation knowledge base — incident response, API design, deployment, security, and related topics — meant to demonstrate hybrid retrieval on a realistic query, not a real company's editorial content. Treat it as demo data, not authoritative documentation for any real organization.
 - Search result relevance, highlighting, and facet counts are generated live by Elasticsearch at request time and are not cacheable as static facts.
+- Whether a given search used hybrid (lexical + semantic) retrieval or fell back to lexical-only depends on whether the connected Elasticsearch cluster has a usable inference endpoint; this is a runtime property of the deployment, not something to infer from the UI alone.
 - The `/admin` area requires authentication and is excluded from crawling via robots.txt; do not attempt to enumerate or index it.
-- The bundled article corpus mixes demonstration content (engineering-career articles) and sample internal-policy documents; do not treat any of it as authoritative company policy for a real organization.

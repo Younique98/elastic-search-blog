@@ -21,6 +21,19 @@ class Search:
         es_username = os.environ.get('ES_USERNAME')
         es_password = os.environ.get('ES_PASSWORD')
 
+        # The inference endpoint that computes semantic embeddings for the
+        # `content_semantic` field, entirely inside the cluster — no
+        # external embedding model, API key, or vector database required.
+        # `.elser-2-elasticsearch` is Elastic's built-in sparse-embedding
+        # endpoint, preconfigured on Elastic Cloud and Serverless. A
+        # self-managed cluster without an ML node (or an older version)
+        # won't have it; see the fallback in create_index() below.
+        self.inference_id = os.environ.get('ES_INFERENCE_ID', '.elser-2-elasticsearch')
+        # Set once create_index() runs, so search() knows whether it's safe
+        # to add the semantic retriever or whether this cluster can only
+        # do lexical (BM25) search.
+        self.semantic_enabled = False
+
         client_kwargs = {}
         if es_api_key:
             client_kwargs['api_key'] = es_api_key
@@ -36,10 +49,50 @@ class Search:
         print('Connected to Elasticsearch!')
         pprint(client_info.body)
 
-# create_index first deletes an index then ignores unavailable prevents call from failing when index name is not found and creates a new index with the same name
+    # create_index first deletes an index then ignores unavailable prevents call from failing when index name is not found and creates a new index with the same name
+    #
+    # Tries to create the index with `content_semantic` mapped as
+    # `semantic_text` (hybrid lexical+semantic retrieval, the actual
+    # product). If the cluster can't support that — no ML node, no
+    # `.elser-2-elasticsearch` endpoint, or a pre-8.15 version — falls back
+    # to a plain index so the app still runs in BM25-only mode instead of
+    # refusing to start. semantic_enabled reflects which mode is live.
     def create_index(self):
         self.es.indices.delete(index='my_documents', ignore_unavailable=True)
-        self.es.indices.create(index='my_documents')
+        try:
+            self.es.indices.create(
+                index='my_documents',
+                mappings={
+                    'properties': {
+                        'content_semantic': {
+                            'type': 'semantic_text',
+                            'inference_id': self.inference_id,
+                        },
+                    },
+                },
+            )
+            self.semantic_enabled = True
+        except Exception:
+            print(
+                f'Could not create the index with semantic_text on '
+                f'inference endpoint "{self.inference_id}" — falling back '
+                f'to lexical-only search. Set ES_INFERENCE_ID if this '
+                f'cluster uses a different endpoint id, or deploy '
+                f'.elser-2-elasticsearch (Elastic Cloud/Serverless has it '
+                f'preconfigured).'
+            )
+            self.es.indices.create(index='my_documents')
+            self.semantic_enabled = False
+
+    def _prepare(self, document):
+        """Attach the field the semantic retriever reads from. A shallow
+        copy so callers' dicts (e.g. content.py's in-memory posts) aren't
+        mutated by a side effect of indexing them."""
+        if not self.semantic_enabled:
+            return document
+        doc = dict(document)
+        doc['content_semantic'] = doc.get('content', '')
+        return doc
 
     # Every document is indexed with its own stable `id` (see content.py)
     # as the Elasticsearch document _id, rather than letting Elasticsearch
@@ -49,7 +102,7 @@ class Search:
     # every reindex the way an auto-generated id would.
     def index_document(self, document):
         return self.es.index(
-            index='my_documents', id=document['id'], document=document
+            index='my_documents', id=document['id'], document=self._prepare(document)
         )
 
     def delete_document(self, id):
@@ -64,7 +117,7 @@ class Search:
         operations = []
         for document in documents:
             operations.append({'index': {'_index': 'my_documents', '_id': document['id']}})
-            operations.append(document)
+            operations.append(self._prepare(document))
         return self.es.bulk(operations=operations)
 
 # to regenerate the index

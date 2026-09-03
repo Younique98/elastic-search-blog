@@ -32,6 +32,6 @@ class PostForm(FlaskForm):
     category = StringField('Category', validators=[DataRequired()])
     tags = StringField(
         'Tags',
-        description='Comma-separated, e.g. "python, tutorials, elasticsearch"',
+        description='Comma-separated, e.g. "rate-limiting, api-design, elasticsearch"',
     )
     submit = SubmitField('Save post')

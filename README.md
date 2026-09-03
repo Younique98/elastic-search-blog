@@ -1,47 +1,44 @@
-![Screenshot 2024-10-16 at 2 17 11 PM](https://github.com/user-attachments/assets/4a4f3444-3c38-4981-b7b9-9d421ef6dad1)
-![Screenshot 2024-10-16 at 2 16 54 PM](https://github.com/user-attachments/assets/68856874-a3db-40d7-81be-1e938f87ffbe)
+# RetrievalKit
 
-# Elastic Search Blog
+> Self-hostable hybrid search and RAG retrieval infrastructure for engineering teams building AI agents and RAG pipelines — running entirely on the Elasticsearch cluster you already operate. No second vector database, no external embedding service, no new infra to adopt.
 
-A self-hostable, **Elasticsearch-powered search-and-discovery layer** for a blog or documentation site — the kind of relevance-ranked, typo-tolerant, faceted search you'd normally pay a hosted SaaS product like Algolia for, running entirely on infrastructure you control.
+## The problem
 
-**Why this instead of a SQL `LIKE '%query%'` search?** A substring match can only tell you whether a word is *present* — it can't rank results by relevance, tolerate a typo, highlight what matched, or let visitors filter by category/tag/year. Elasticsearch does all of that natively; this project wires it up behind a small Flask app so you don't have to.
+Every team building a RAG pipeline or an AI agent needs retrieval, and the default answer today is "add a vector database" — Pinecone, Qdrant, Weaviate — next to whatever search or storage infrastructure already exists. That's a second system to operate, a second place data can drift out of sync, and a second bill. Teams that already run Elasticsearch for logs, product search, or general full-text search are paying for retrieval capability twice: once for BM25 search they already have, and again for semantic/vector search bolted on separately.
 
-**Who it's for:** bloggers, small documentation sites, and content platforms that want real search over their own content without adopting a hosted SaaS search vendor or standing up a heavier search infrastructure than they need — and are willing to run (or already run) Elasticsearch.
+## What RetrievalKit does instead
 
----
+RetrievalKit runs hybrid retrieval — BM25 lexical search and semantic search — as a single query against a single Elasticsearch index, using Elasticsearch's own built-in inference API to compute embeddings server-side. There is no separate embedding service to call, no vectors to manage in application code, and no second database. If a team already has Elasticsearch, RetrievalKit is the difference between "buy a vector database" and "turn on a feature."
 
-## Features
+Concretely:
 
-### Search
-- **Relevance-ranked full-text search** across title, summary, and body via a boosted, fuzzy `multi_match` query — typos and near-matches still find the right article.
-- **Matched-term highlighting** in results (`<mark>` around what matched), safely HTML-escaped so indexed content can never reintroduce markup/script injection.
-- **Faceted filtering** by category, tag, and year, both via the sidebar and inline query syntax (`category:job interviews`, `tag:python`, `year:2024`).
-- **Related articles** on every post, generated with Elasticsearch's `more_like_this` — no manual tagging or curation required.
-- **Pagination** over large result sets.
+- **Hybrid retrieval** — a query runs as two retrievers (BM25 `multi_match` and Elasticsearch's `semantic` query type) merged with Reciprocal Rank Fusion, so results are ranked well whether the match is lexical (the query contains the right words) or conceptual (it doesn't, but means the same thing).
+- **Zero external ML dependency** — embeddings are computed by Elasticsearch's built-in inference endpoint (ELSER by default), not a model your application downloads, hosts, or calls out to. This is what makes it self-hostable in practice, not just in theory.
+- **Graceful degradation** — if a cluster has no inference endpoint available (older version, no ML node), RetrievalKit automatically falls back to lexical-only search instead of refusing to run.
+- **Faceted filtering and highlighting** — category/tag/date filters and matched-term highlighting work the same way whether the underlying match was lexical or semantic.
+- **A lightweight admin panel** — create, edit, and delete indexed documents from an authenticated `/admin` panel; every save re-embeds and re-indexes immediately.
 
-### Content management
-- An authenticated `/admin` panel (single self-hosted admin account) to create, edit, and delete posts — no more hand-editing `data.json` and re-running `flask reindex` for every change.
-- Every save writes through to `data.json` (the durable content store) and updates the live Elasticsearch index immediately.
+## Try it
 
-### Production-readiness
-- CSRF protection, environment-configured secrets/credentials (nothing hardcoded), and no debug mode by default.
-- `robots.txt`, `sitemap.xml` (generated live from the index), and `llms.txt` for search engines and AI crawlers.
-- Per-page titles and meta descriptions; WCAG AA-checked templates.
+The homepage runs a live search against a sample engineering-documentation corpus (incident response, API design, deployment, security, and similar topics) so you can see hybrid retrieval work on a real query before pointing it at your own data — try a conceptual query like `why do requests fail under load` and note that it can surface the right document without needing to share any of its exact words.
 
----
+## Stack
 
-## Running the Project
+- Backend: Python, Flask, Flask-Login (single-admin authentication), Flask-WTF (forms/CSRF)
+- Retrieval: Elasticsearch — `retriever`-based hybrid search (RRF across a `standard` BM25 retriever and a `standard` retriever against a `semantic_text` field), term/range filters, terms and date-histogram aggregations, highlighting, `more_like_this` for related-document surfacing
+- Templates: Jinja2
 
-1. Have an Elasticsearch instance available (self-hosted via Docker, or Elastic Cloud) and note its URL or Cloud ID.
+## Running the project
+
+1. Have an Elasticsearch instance available (self-hosted via Docker, or Elastic Cloud/Serverless) and note its URL or Cloud ID. Elastic Cloud and Serverless ship the `.elser-2-elasticsearch` inference endpoint preconfigured — hybrid search works out of the box. A self-managed cluster without an ML node will still run, in lexical-only mode.
 2. Clone the repository and navigate to the project directory.
 3. `pip install -r requirements.txt`
 4. Copy `.env.example` to `.env` and fill in:
    - `SECRET_KEY` (without it the app falls back to a random key that changes on every restart, invalidating CSRF tokens and admin sessions in flight — set a real one before deploying).
    - Your Elasticsearch connection details (`ES_URL`, or `ES_CLOUD_ID`/`ES_API_KEY` for Elastic Cloud).
    - `ADMIN_USERNAME` and `ADMIN_PASSWORD_HASH` for the admin panel — generate the hash with `flask hash-password 'your-chosen-password'` (never put the plaintext password itself in `.env`).
-5. `flask reindex` to load `data.json` into the Elasticsearch index.
+5. `flask reindex` to load `data.json` into the Elasticsearch index (this also runs the embedding step for every document, via Elasticsearch's inference endpoint).
 6. `flask run`
-7. Open the browser at http://localhost:5001/ for the site, or http://localhost:5001/admin/login to manage posts.
+7. Open the browser at http://localhost:5001/ for the demo search, or http://localhost:5001/admin/login to manage documents.
 
 Note: `FLASK_DEBUG` is intentionally not set in `.flaskenv`. The Werkzeug debugger it enables allows remote code execution if the app is ever exposed outside localhost — set it in your own shell for local debugging only, never in a committed file.
