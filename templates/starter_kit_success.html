@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="rk-panel rk-panel-narrow text-center">
+        <h1 class="h3 mb-3">Thanks for your purchase</h1>
+        <p style="color: var(--rk-text-secondary);">
+            Your payment for the Elasticsearch Search Starter Kit went through.
+            The kit is delivered by hand while it's a new product — you'll get an
+            email with your download shortly.
+        </p>
+        <a href="{{ url_for('index') }}" class="btn btn-outline-primary mt-2">
+            Back to the blog
+        </a>
+    </div>
+{% endblock %}
