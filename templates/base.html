@@ -35,22 +35,30 @@
                     />
                     RetrievalKit
                 </a>
-                <ul class="navbar-nav flex-row ms-auto">
+                <ul class="navbar-nav flex-row align-items-center ms-auto">
+                    <li class="nav-item me-3">
+                        <a class="nav-link" href="#get-started">Get started</a>
+                    </li>
                     {% if current_user.is_authenticated %}
                         <li class="nav-item me-3">
                             <a class="nav-link" href="{{ url_for('admin_dashboard') }}">Manage documents</a>
                         </li>
-                        <li class="nav-item">
+                        <li class="nav-item me-3">
                             <form method="POST" action="{{ url_for('admin_logout') }}" class="d-inline">
                                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                 <button type="submit" class="btn btn-link nav-link p-0">Log out</button>
                             </form>
                         </li>
                     {% else %}
-                        <li class="nav-item">
+                        <li class="nav-item me-3">
                             <a class="nav-link" href="{{ url_for('admin_login') }}">Admin login</a>
                         </li>
                     {% endif %}
+                    <li class="nav-item">
+                        <a class="btn btn-primary btn-sm" href="{{ REPO_URL }}" target="_blank" rel="noreferrer">
+                            Deploy your own &rarr;
+                        </a>
+                    </li>
                 </ul>
             </div>
         </nav>

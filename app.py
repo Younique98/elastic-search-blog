@@ -54,6 +54,16 @@ SITE_DESCRIPTION = (
     'adopt a second vector database next to the search cluster you '
     'already operate.'
 )
+REPO_URL = 'https://github.com/Younique98/elastic-search-blog'
+
+
+@app.context_processor
+def inject_repo_url():
+    # This is a self-hosted tool, not a SaaS with signup — the actual
+    # "get started" path for a visitor is the GitHub repo, not a form
+    # anywhere on this site. Injected globally so every template can link
+    # to it without every render_template() call needing to pass it.
+    return {'REPO_URL': REPO_URL}
 
 # Elasticsearch highlighting wraps matched terms with these markers. They
 # are unusual control characters, never real article text, so after the
