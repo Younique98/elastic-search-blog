@@ -1,6 +1,7 @@
-/* RetrievalKit visual identity — a small, deliberate override on top of
-   Bootstrap defaults rather than a full custom framework, since the
-   product is the retrieval engine, not the UI kit. */
+/* RetrievalKit visual identity. Built on top of Bootstrap's grid/utility
+   classes (still used for responsive columns, spacing helpers) but the
+   actual look — type, color, components — is fully owned here rather
+   than inherited from Bootstrap defaults. */
 
 :root {
   --rk-ink: #0b1220;
@@ -8,68 +9,294 @@
   --rk-accent: #4fd1c5;
   --rk-accent-dim: #2f8f86;
   --rk-text-muted: #94a3b8;
+  --rk-bg: #f6f8fa;
+  --rk-surface: #ffffff;
+  --rk-border: #e2e8f0;
+  --rk-text: #0f172a;
+  --rk-text-secondary: #475569;
+  --rk-radius: 0.75rem;
+  --rk-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px -8px rgba(15, 23, 42, 0.08);
 }
 
 body {
-  background-color: #f7f9fc;
-  color: #0b1220;
+  background-color: var(--rk-bg);
+  color: var(--rk-text);
+  font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
 }
 
+h1, h2, h3, h4, h5, h6, .navbar-brand {
+  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+}
+
+code, .rk-mono {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+  font-size: 0.875em;
+}
+
+.container {
+  max-width: 960px;
+  margin-inline: auto;
+}
+
+/* Nav */
 .rk-navbar {
   background-color: var(--rk-ink) !important;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
 }
 
 .rk-brand {
-  font-weight: 700;
-  letter-spacing: -0.01em;
+  display: inline-flex;
+  align-items: center;
+  font-weight: 800;
+  font-size: 1.15rem;
+  letter-spacing: -0.02em;
 }
 
+.rk-brand img {
+  vertical-align: unset;
+}
+
+/* Hero */
 .rk-hero {
-  background: linear-gradient(135deg, var(--rk-ink) 0%, var(--rk-panel) 100%);
-  color: #f1f5f9;
-  border-radius: 0.5rem;
-  padding: 2rem;
-  margin-bottom: 1.5rem;
-}
-
-.rk-hero .lead {
-  color: #f1f5f9;
-}
-
-.rk-hero code {
-  color: var(--rk-accent);
-  background: rgba(79, 209, 197, 0.12);
-  padding: 0.1rem 0.35rem;
-  border-radius: 0.25rem;
-}
-
-.rk-hero a {
-  color: var(--rk-accent);
+  text-align: center;
+  padding: 3.5rem 1rem 2.5rem;
 }
 
 .rk-badge {
-  display: inline-block;
-  font-size: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
   font-weight: 600;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--rk-accent);
-  border: 1px solid var(--rk-accent-dim);
+  color: var(--rk-accent-dim);
+  background: rgba(47, 143, 134, 0.08);
+  border: 1px solid rgba(47, 143, 134, 0.25);
   border-radius: 999px;
-  padding: 0.2rem 0.65rem;
-  margin-bottom: 0.75rem;
+  padding: 0.35rem 0.85rem;
+  margin-bottom: 1.25rem;
 }
 
-.btn-primary {
-  background-color: var(--rk-accent-dim);
+.rk-badge::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--rk-accent);
+  display: inline-block;
+}
+
+.rk-hero h1 {
+  font-size: clamp(2rem, 4.5vw, 2.85rem);
+  line-height: 1.15;
+  max-width: 34rem;
+  margin: 0 auto 0.9rem;
+  color: var(--rk-text);
+}
+
+.rk-hero .rk-subhead {
+  font-size: 1.1rem;
+  color: var(--rk-text-secondary);
+  max-width: 36rem;
+  margin: 0 auto;
+}
+
+/* How it works strip */
+.rk-steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  max-width: 46rem;
+  margin: 2.25rem auto 0;
+  text-align: left;
+}
+
+.rk-step {
+  background: var(--rk-surface);
+  border: 1px solid var(--rk-border);
+  border-radius: var(--rk-radius);
+  padding: 1rem 1.1rem;
+}
+
+.rk-step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  background: var(--rk-ink);
+  color: var(--rk-accent);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
+  margin-bottom: 0.6rem;
+}
+
+.rk-step h3 {
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+  color: var(--rk-text);
+}
+
+.rk-step p {
+  font-size: 0.82rem;
+  color: var(--rk-text-secondary);
+  margin: 0;
+  line-height: 1.5;
+}
+
+@media (max-width: 640px) {
+  .rk-steps {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Search */
+.rk-search-wrap {
+  max-width: 40rem;
+  margin: 2.25rem auto 0;
+}
+
+.rk-search-input {
+  width: 100%;
+  font-size: 1.05rem;
+  padding: 0.9rem 1.25rem;
+  border: 1.5px solid var(--rk-border);
+  border-radius: var(--rk-radius);
+  box-shadow: var(--rk-shadow);
+  transition: border-color 0.15s ease;
+}
+
+.rk-search-input:focus {
+  outline: none;
   border-color: var(--rk-accent-dim);
+  box-shadow: 0 0 0 3px rgba(79, 209, 197, 0.18);
+}
+
+.rk-search-hint {
+  font-size: 0.8rem;
+  color: var(--rk-text-muted);
+  margin-top: 0.6rem;
+}
+
+.rk-example-queries {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 0.9rem;
+}
+
+.rk-chip {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  color: var(--rk-text-secondary);
+  background: var(--rk-surface);
+  border: 1px solid var(--rk-border);
+  border-radius: 999px;
+  padding: 0.35rem 0.85rem;
+  text-decoration: none;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.rk-chip:hover {
+  border-color: var(--rk-accent-dim);
+  color: var(--rk-accent-dim);
+}
+
+/* Results */
+.rk-results-summary {
+  font-size: 0.85rem;
+  color: var(--rk-text-secondary);
+}
+
+.rk-facet-group {
+  margin-bottom: 1.25rem;
+}
+
+.rk-facet-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--rk-text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.rk-facet-btn {
+  display: block;
+  width: 100%;
+  text-align: left;
+  font-size: 0.85rem;
+  color: var(--rk-text-secondary);
+  background: none;
+  border: none;
+  padding: 0.3rem 0;
+}
+
+.rk-facet-btn:hover:not(:disabled) {
+  color: var(--rk-accent-dim);
+}
+
+.rk-result-card {
+  background: var(--rk-surface);
+  border: 1px solid var(--rk-border);
+  border-radius: var(--rk-radius);
+  padding: 1.1rem 1.25rem;
+  margin-bottom: 0.85rem;
+}
+
+.rk-result-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-bottom: 0.3rem;
+}
+
+.rk-result-title a {
+  color: var(--rk-text);
+  text-decoration: none;
+}
+
+.rk-result-title a:hover {
+  color: var(--rk-accent-dim);
+}
+
+.rk-result-summary {
+  font-size: 0.92rem;
+  color: var(--rk-text-secondary);
+  margin-bottom: 0.5rem;
+}
+
+.rk-result-meta {
+  font-size: 0.75rem;
+  color: var(--rk-text-muted);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Buttons */
+.btn-primary {
+  background-color: var(--rk-ink);
+  border-color: var(--rk-ink);
+  font-weight: 600;
+  border-radius: 0.5rem;
 }
 
 .btn-primary:hover,
 .btn-primary:focus {
-  background-color: var(--rk-accent);
-  border-color: var(--rk-accent);
-  color: var(--rk-ink);
+  background-color: var(--rk-accent-dim);
+  border-color: var(--rk-accent-dim);
+  color: white;
 }
 
 a {
@@ -83,4 +310,5 @@ a:hover {
 mark {
   background-color: rgba(79, 209, 197, 0.35);
   padding: 0 0.15rem;
+  border-radius: 0.15rem;
 }
