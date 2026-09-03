@@ -144,14 +144,31 @@ class Search:
         for document in documents:
             operations.append({'index': {'_index': 'my_documents', '_id': document['id']}})
             operations.append(self._prepare(document))
-        return self.es.bulk(operations=operations)
+        # refresh='wait_for' — without it, a bulk insert is only guaranteed
+        # visible to search after Elasticsearch's next automatic refresh
+        # (default: up to 1s later). That's harmless when `flask reindex`
+        # runs as a standalone CLI command well before any real traffic,
+        # but the auto-heal path in __init__ now does reindex-then-
+        # immediately-serve-the-triggering-request within the same cold
+        # start, which is exactly the race this closes.
+        response = self.es.bulk(operations=operations, refresh='wait_for')
+        if response.get('errors'):
+            failed = [
+                item['index']['error'] for item in response['items']
+                if item.get('index', {}).get('error')
+            ]
+            print(f'Bulk indexing had {len(failed)} failed document(s): {failed[:3]}')
+        return response
 
 # to regenerate the index
     def reindex(self):
         self.create_index()
         with open(DATA_FILE, 'rt') as f:
             documents = json.loads(f.read())
-        return self.insert_documents(documents)
+        response = self.insert_documents(documents)
+        indexed = sum(1 for item in response['items'] if not item.get('index', {}).get('error'))
+        print(f'Reindexed {indexed}/{len(documents)} documents successfully.')
+        return response
 
     def search(self, **query_args):
         return self.es.search(index='my_documents', **query_args)
