@@ -8,6 +8,14 @@
             name="description"
             content="{{ meta_description | default('RetrievalKit is self-hostable hybrid retrieval infrastructure for RAG pipelines and AI agents, combining BM25 and semantic search on the Elasticsearch cluster you already run.') }}"
         />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="RetrievalKit" />
+        <meta property="og:title" content="{{ page_title | default('RetrievalKit – Hybrid Search & RAG Retrieval on Elasticsearch') }}" />
+        <meta
+            property="og:description"
+            content="{{ meta_description | default('RetrievalKit is self-hostable hybrid retrieval infrastructure for RAG pipelines and AI agents, combining BM25 and semantic search on the Elasticsearch cluster you already run.') }}"
+        />
+        <meta property="og:url" content="{{ request.url }}" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
         <link

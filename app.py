@@ -65,6 +65,35 @@ def inject_repo_url():
     # to it without every render_template() call needing to pass it.
     return {'REPO_URL': REPO_URL}
 
+
+# Content-Security-Policy is built to match what templates/base.html and
+# templates/index.html actually load — Bootstrap CSS/JS and the Inter/
+# JetBrains Mono fonts from jsdelivr/Google Fonts CDNs, plus the small
+# inline <script> in index.html and the inline `style="..."` attributes
+# used across templates — rather than a generic default-src 'self' that
+# would silently break the CDN assets or the search-chip click handler.
+_CSP = '; '.join([
+    "default-src 'self'",
+    "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net",
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net",
+    "font-src 'self' https://fonts.gstatic.com",
+    "img-src 'self' data:",
+    "connect-src 'self'",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+    "frame-ancestors 'none'",
+])
+
+
+@app.after_request
+def set_security_headers(response):
+    response.headers['Content-Security-Policy'] = _CSP
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'DENY'
+    response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+    return response
+
 # Elasticsearch highlighting wraps matched terms with these markers. They
 # are unusual control characters, never real article text, so after the
 # whole fragment is HTML-escaped (defeating any XSS in the underlying
