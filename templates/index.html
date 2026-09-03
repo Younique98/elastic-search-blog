@@ -116,7 +116,7 @@
                 {% endfor %}
             </div>
         </div>
-    {% elif request.method == 'POST' %}
+    {% elif request.method == 'POST' and not search_failed %}
         <p class="text-center mt-4">No results found for &ldquo;{{ query }}&rdquo;. Try a different search term or remove a <code>category:</code>/<code>year:</code> filter.</p>
     {% endif %}
 {% endblock %}
