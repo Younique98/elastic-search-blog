@@ -2,11 +2,13 @@
 
 {% block content %}
     <p><a href="javascript:history.back(1)">&larr; Back to search results</a></p>
-    <h1 class="mt-2" style="font-size: 1.9rem;">{{ title }}</h1>
-    <div class="mt-3">
-        {% for paragraph in paragraphs %}
-            <p style="color: var(--rk-text-secondary); line-height: 1.7;">{{ paragraph }}</p>
-        {% endfor %}
+    <div class="rk-panel mt-3">
+        <h1 style="font-size: 1.9rem;">{{ title }}</h1>
+        <div class="mt-3">
+            {% for paragraph in paragraphs %}
+                <p style="color: var(--rk-text-secondary); line-height: 1.7;">{{ paragraph }}</p>
+            {% endfor %}
+        </div>
     </div>
     {% if related %}
         <div class="rk-facet-title mt-4 mb-2">Related documents</div>
