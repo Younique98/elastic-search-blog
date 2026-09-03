@@ -31,7 +31,7 @@
                 <p><a href="javascript:history.back(1)">← Back to previous search</a></p>
                 {% for agg in aggs %}
                     {% if aggs[agg] %}
-                        <h2 class="h6 mt-3">{{ agg }}</h2>
+                        <h2 class="facet-heading mt-3">{{ agg }}</h2>
                         {% for key, count in aggs[agg].items() %}
                             <form method="POST">
                                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -65,18 +65,18 @@
                     <div class="col"></div>
                 </div>
                 {% for result in results %}
-                    <p>
-                        {{ from_ + loop.index }}. <b><a href="{{ url_for('get_document', id=result._id) }}">{{ result.display_name }}</a></b>
-                        <br>
-                        {{ result.display_summary }}
-                        <br>
-                        <small>
-                            Category: {{ result._source.category }}.
-                            {% if result._source.tags %}Tags: {{ result._source.tags | join(', ') }}.{% endif %}
-                            Last updated: {{ result._source.updated_at | default(result._source.created_on) }}.
-                            {% if result._score %}<i>(Relevance score: {{ '%.2f' | format(result._score) }})</i>{% endif %}
-                        </small>
-                    </p>
+                    <div class="search-hit">
+                        <p class="search-hit-title mb-1">
+                            {{ from_ + loop.index }}. <a href="{{ url_for('get_document', id=result._id) }}">{{ result.display_name }}</a>
+                        </p>
+                        <p class="mb-1">{{ result.display_summary }}</p>
+                        <p class="search-meta mb-0">
+                            category:{{ result._source.category }}
+                            {% if result._source.tags %} · tags:{{ result._source.tags | join(', ') }}{% endif %}
+                            · updated:{{ result._source.updated_at | default(result._source.created_on) }}
+                            {% if result._score %} · relevance:{{ '%.2f' | format(result._score) }}{% endif %}
+                        </p>
+                    </div>
                 {% endfor %}
             </div>
         </div>

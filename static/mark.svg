@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="30" height="30" role="img" aria-hidden="true">
+  <title>Elastic Search Blog mark</title>
+  <path d="M10 4h18l10 10v28a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" fill="#FBF7EE" stroke="#221D14" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M28 4v8a2 2 0 0 0 2 2h8" fill="none" stroke="#221D14" stroke-width="2.5" stroke-linejoin="round"/>
+  <rect x="12" y="16" width="14" height="3" rx="1.5" fill="#0B6E62"/>
+  <rect x="12" y="22" width="10" height="3" rx="1.5" fill="#C9BB9C"/>
+  <circle cx="29" cy="30" r="8" fill="#FCE49A" stroke="#8A5A08" stroke-width="2.5"/>
+  <line x1="34.8" y1="35.8" x2="40" y2="41" stroke="#8A5A08" stroke-width="3" stroke-linecap="round"/>
+</svg>
