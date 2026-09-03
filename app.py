@@ -19,6 +19,7 @@ from werkzeug.security import generate_password_hash
 
 import billing
 import content
+import notifications
 import store
 from auth import AdminUser, login_manager, verify_admin_credentials
 from forms import LoginForm, NewsletterForm, PostForm
@@ -47,11 +48,14 @@ login_manager.init_app(app)
 
 es = Search()
 
-# Newsletter subscribers and Starter Kit purchases live in a small local
-# SQLite file (see store.py for why that's a better fit here than either
-# Elasticsearch or a dedicated Postgres server). init_db() is a no-op if
-# the file/tables already exist, mirroring how Search.__init__ above
-# auto-heals a missing Elasticsearch index.
+# Newsletter subscribers and Starter Kit purchases live in hosted
+# Postgres (see store.py — DATABASE_URL, e.g. from Vercel's Neon
+# integration; not Elasticsearch, and not a local file, since this app
+# has no persistent local filesystem in its actual serverless
+# deployment). init_db() is a no-op if the tables already exist,
+# mirroring how Search.__init__ above auto-heals a missing Elasticsearch
+# index; it's also a no-op (with a logged warning) if DATABASE_URL isn't
+# set yet, so a deployment missing it still boots.
 store.init_db()
 
 SITE_NAME = 'RetrievalKit'
@@ -383,7 +387,16 @@ def sitemap_xml():
 def newsletter_subscribe():
     form = NewsletterForm()
     if form.validate_on_submit():
-        store.add_subscriber(form.email.data)
+        try:
+            store.add_subscriber(form.email.data)
+        except Exception:
+            # A visitor submitting a form should never see a 500 because
+            # DATABASE_URL isn't set yet or the database is briefly
+            # unreachable — log it for the site owner to notice and
+            # fail soft in the UI instead.
+            app.logger.exception('Could not store newsletter signup for %s', form.email.data)
+            flash('Could not subscribe right now — please try again shortly.', 'danger')
+            return redirect(request.referrer or url_for('index'))
         # Same confirmation whether this email was new or already on the
         # list — never reveal via the flash message which one happened,
         # that's a (low-stakes but free to avoid) way to enumerate
@@ -401,9 +414,14 @@ def newsletter_subscribe():
 # template/boilerplate for adding Elasticsearch-powered hybrid search —
 # the same lexical+semantic pattern this blog runs on — to a Flask,
 # Django, or Node app. Sold as a single $49 purchase (billing.py,
-# `mode: "payment"`), not a subscription. Fulfillment is deliberately
-# manual for now (see the webhook below) rather than an automated
-# file-delivery system for a product whose contents don't exist yet.
+# `mode: "payment"`), not a subscription.
+#
+# Delivery is automated (see notifications.py) even though the kit's
+# actual contents aren't finished yet: the webhook always sends a
+# confirmation email, and includes the real download link only once
+# STARTER_KIT_FILE_URL is set — until then it tells the buyer their
+# link is coming within 24 hours. That's the one thing this still
+# needs a human for; nothing in the code changes once the kit ships.
 # ---------------------------------------------------------------------------
 
 @app.get('/starter-kit')
@@ -488,6 +506,14 @@ def stripe_webhook():
         if session.get('mode') == 'payment' and session.get('payment_status') == 'paid':
             email = (session.get('customer_details') or {}).get('email') or session.get('customer_email')
             if email:
+                # Deliberately not wrapped in try/except: if the database
+                # is unreachable or DATABASE_URL isn't configured yet,
+                # this should raise and 500 rather than silently
+                # swallow a paid purchase. A 500 tells Stripe to retry
+                # the webhook (with backoff, for up to a few days), so a
+                # transient outage or a not-yet-finished deploy still
+                # ends with the purchase recorded once things are fixed,
+                # instead of it being lost the moment this request fails.
                 is_new = store.record_purchase(
                     product=billing.STARTER_KIT_PRODUCT_ID,
                     email=email,
@@ -498,11 +524,20 @@ def stripe_webhook():
                 )
                 if is_new:
                     app.logger.info('Starter Kit purchase recorded for %s', email)
-                # No automated delivery yet: Erica checks
-                # store.list_unfulfilled_purchases() (or opens store.db
-                # directly) and emails the kit to each buyer by hand
-                # while volume is low. See the PR description for why
-                # that's the right tradeoff right now.
+                    # Only send on a genuinely new row — is_new is False
+                    # on a Stripe retry of an already-recorded session,
+                    # and a retried delivery email is exactly the kind
+                    # of duplicate the idempotent insert above exists to
+                    # prevent. STARTER_KIT_FILE_URL is unset until Erica
+                    # finishes the kit, so today this sends the "still
+                    # coming" variant (see notifications.py) — nothing
+                    # here needs to change when that's ready.
+                    sent = notifications.send_starter_kit_purchase_email(email)
+                    if not sent and notifications.is_configured():
+                        app.logger.error(
+                            'Starter Kit purchase email failed to send to %s '
+                            '(purchase is recorded regardless)', email
+                        )
             else:
                 app.logger.error(
                     'checkout.session.completed for %s had no buyer email; '

@@ -45,10 +45,6 @@ jspm_packages/
 .DS_Store
 Thumbs.db
 
-# SQLite store (newsletter subscribers + Starter Kit purchases) — a
-# local data file, never committed, same as .env.
-store.db
-
 # Python
 __pycache__/
 *.py[cod]
