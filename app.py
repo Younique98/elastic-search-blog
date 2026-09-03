@@ -3,6 +3,7 @@ import re
 import secrets
 
 import click
+import stripe
 from dotenv import load_dotenv
 from elasticsearch import NotFoundError
 from flask import (
@@ -16,9 +17,11 @@ from flask_wtf import CSRFProtect
 from markupsafe import Markup, escape
 from werkzeug.security import generate_password_hash
 
+import billing
 import content
+import store
 from auth import AdminUser, login_manager, verify_admin_credentials
-from forms import LoginForm, PostForm
+from forms import LoginForm, NewsletterForm, PostForm
 from search import Search
 
 load_dotenv()
@@ -44,6 +47,13 @@ login_manager.init_app(app)
 
 es = Search()
 
+# Newsletter subscribers and Starter Kit purchases live in a small local
+# SQLite file (see store.py for why that's a better fit here than either
+# Elasticsearch or a dedicated Postgres server). init_db() is a no-op if
+# the file/tables already exist, mirroring how Search.__init__ above
+# auto-heals a missing Elasticsearch index.
+store.init_db()
+
 SITE_NAME = 'RetrievalKit'
 SITE_TAGLINE = 'Hybrid search & RAG retrieval on the Elasticsearch you already run'
 SITE_DESCRIPTION = (
@@ -64,6 +74,15 @@ def inject_repo_url():
     # anywhere on this site. Injected globally so every template can link
     # to it without every render_template() call needing to pass it.
     return {'REPO_URL': REPO_URL}
+
+
+@app.context_processor
+def inject_newsletter_form():
+    # The subscribe form lives in every page's footer (templates/base.html),
+    # so it needs a fresh NewsletterForm (and thus a valid CSRF token) on
+    # every render, without every single view function constructing and
+    # passing one down individually.
+    return {'newsletter_form': NewsletterForm()}
 
 
 # Content-Security-Policy is built to match what templates/base.html and
@@ -348,6 +367,149 @@ def sitemap_xml():
         app.logger.exception('Could not list documents for sitemap.xml')
     xml = render_template('sitemap.xml', pages=pages)
     return Response(xml, mimetype='application/xml')
+
+
+# ---------------------------------------------------------------------------
+# Newsletter
+#
+# Every blog post stays fully free/public — no paywall, no reader
+# accounts. This is just email capture (see store.py) so a subscriber
+# list exists before there's a monetized reason to have one. The form
+# itself lives in the page footer (templates/base.html) so it's on
+# every page, not a separate route to visit.
+# ---------------------------------------------------------------------------
+
+@app.post('/newsletter/subscribe')
+def newsletter_subscribe():
+    form = NewsletterForm()
+    if form.validate_on_submit():
+        store.add_subscriber(form.email.data)
+        # Same confirmation whether this email was new or already on the
+        # list — never reveal via the flash message which one happened,
+        # that's a (low-stakes but free to avoid) way to enumerate
+        # existing subscribers.
+        flash('Thanks — you’re subscribed.', 'success')
+    else:
+        flash('Enter a valid email address to subscribe.', 'danger')
+    return redirect(request.referrer or url_for('index'))
+
+
+# ---------------------------------------------------------------------------
+# Starter Kit: one-time purchase via Stripe Checkout
+#
+# The one sellable product right now: a downloadable code
+# template/boilerplate for adding Elasticsearch-powered hybrid search —
+# the same lexical+semantic pattern this blog runs on — to a Flask,
+# Django, or Node app. Sold as a single $49 purchase (billing.py,
+# `mode: "payment"`), not a subscription. Fulfillment is deliberately
+# manual for now (see the webhook below) rather than an automated
+# file-delivery system for a product whose contents don't exist yet.
+# ---------------------------------------------------------------------------
+
+@app.get('/starter-kit')
+def starter_kit():
+    return render_template(
+        'starter_kit.html',
+        stripe_configured=billing.is_configured(),
+        price_label=billing.STARTER_KIT_PRICE_LABEL,
+        page_title=f'Elasticsearch Search Starter Kit – {SITE_NAME}',
+        meta_description=(
+            'A downloadable starter kit for adding Elasticsearch-powered '
+            'hybrid lexical + semantic search to your own Flask, Django, '
+            'or Node app.'
+        ),
+    )
+
+
+@app.post('/stripe/checkout')
+def stripe_checkout():
+    if not billing.is_configured():
+        flash(
+            'Checkout isn’t configured yet — STRIPE_SECRET_KEY, '
+            'STRIPE_PRICE_ID, and STRIPE_WEBHOOK_SECRET need to be set.',
+            'danger',
+        )
+        return redirect(url_for('starter_kit'))
+
+    try:
+        checkout_url = billing.create_checkout_session(
+            success_url=url_for('starter_kit_success', _external=True)
+            + '?session_id={CHECKOUT_SESSION_ID}',
+            cancel_url=url_for('starter_kit', _external=True),
+        )
+    except Exception:
+        app.logger.exception('Could not create Stripe Checkout session')
+        flash('Could not start checkout. Please try again in a moment.', 'danger')
+        return redirect(url_for('starter_kit'))
+
+    return redirect(checkout_url, code=303)
+
+
+@app.get('/starter-kit/success')
+def starter_kit_success():
+    # Stripe appends the completed session's id so this page can greet
+    # the buyer by it, but the *purchase record* is never written here —
+    # a visitor landing on this URL (or reloading it, or forging it)
+    # must never be treated as a paid event. That only happens in
+    # stripe_webhook() below, from a signature-verified request from
+    # Stripe itself. This page is purely a friendly landing screen.
+    return render_template(
+        'starter_kit_success.html',
+        page_title=f'Thanks for your purchase – {SITE_NAME}',
+        meta_description='Your Elasticsearch Search Starter Kit purchase is confirmed.',
+    )
+
+
+@csrf.exempt
+@app.post('/stripe/webhook')
+def stripe_webhook():
+    # Stripe webhooks are server-to-server requests with no browser
+    # session and no CSRF token to send — CSRF protection is for
+    # cookie-authenticated browser forms, and doesn't apply here. The
+    # Stripe-Signature header (verified below) is what proves this
+    # request actually came from Stripe, playing the equivalent role.
+    payload = request.get_data()
+    sig_header = request.headers.get('Stripe-Signature', '')
+
+    try:
+        event = billing.verify_webhook(payload, sig_header)
+    except (ValueError, stripe.error.SignatureVerificationError):
+        app.logger.warning('Rejected Stripe webhook with invalid signature/payload')
+        abort(400)
+
+    if event['type'] == 'checkout.session.completed':
+        # event['data']['object'] is a stripe.StripeObject, not a plain
+        # dict — it supports item access (session['id']) but not .get(),
+        # which raises rather than returning None (confirmed against the
+        # installed stripe SDK). .to_dict() converts it (and nested
+        # objects like customer_details) to plain dicts so .get() below
+        # is safe against any field Stripe omits.
+        session = event['data']['object'].to_dict()
+        if session.get('mode') == 'payment' and session.get('payment_status') == 'paid':
+            email = (session.get('customer_details') or {}).get('email') or session.get('customer_email')
+            if email:
+                is_new = store.record_purchase(
+                    product=billing.STARTER_KIT_PRODUCT_ID,
+                    email=email,
+                    stripe_checkout_session_id=session['id'],
+                    stripe_customer_id=session.get('customer'),
+                    amount_total_cents=session.get('amount_total'),
+                    currency=session.get('currency'),
+                )
+                if is_new:
+                    app.logger.info('Starter Kit purchase recorded for %s', email)
+                # No automated delivery yet: Erica checks
+                # store.list_unfulfilled_purchases() (or opens store.db
+                # directly) and emails the kit to each buyer by hand
+                # while volume is low. See the PR description for why
+                # that's the right tradeoff right now.
+            else:
+                app.logger.error(
+                    'checkout.session.completed for %s had no buyer email; '
+                    'could not record purchase', session.get('id')
+                )
+
+    return '', 200
 
 
 # ---------------------------------------------------------------------------

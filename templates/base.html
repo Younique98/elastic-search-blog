@@ -47,6 +47,9 @@
                     <li class="nav-item me-3">
                         <a class="nav-link" href="#get-started">Get started</a>
                     </li>
+                    <li class="nav-item me-3">
+                        <a class="nav-link" href="{{ url_for('starter_kit') }}">Starter Kit</a>
+                    </li>
                     {% if current_user.is_authenticated %}
                         <li class="nav-item me-3">
                             <a class="nav-link" href="{{ url_for('admin_dashboard') }}">Manage documents</a>
@@ -83,6 +86,22 @@
             <main>
                 {% block content %}{% endblock %}
             </main>
+            <footer class="rk-footer">
+                <div class="rk-newsletter">
+                    <div>
+                        <div class="rk-facet-title mb-1">Stay in the loop</div>
+                        <p class="rk-search-hint mb-0">
+                            New posts on hybrid search, retrieval, and infra — no spam, unsubscribe anytime.
+                        </p>
+                    </div>
+                    <form method="POST" action="{{ url_for('newsletter_subscribe') }}" class="rk-newsletter-form" novalidate>
+                        {{ newsletter_form.hidden_tag() }}
+                        <label for="newsletter-email" class="visually-hidden">Email address</label>
+                        {{ newsletter_form.email(class_='form-control', id='newsletter-email', placeholder='you@example.com') }}
+                        {{ newsletter_form.submit(class_='btn btn-primary') }}
+                    </form>
+                </div>
+            </footer>
         </div>
         <script
             src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"

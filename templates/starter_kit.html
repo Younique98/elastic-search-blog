@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="rk-kit-hero">
+        <span class="rk-badge">One-time purchase</span>
+        <h1>Elasticsearch Search Starter Kit</h1>
+        <p class="rk-subhead">
+            A downloadable code template for adding Elasticsearch-powered hybrid
+            search — the same lexical + semantic retrieval this blog runs on — to
+            your own Flask, Django, or Node app, without adopting a separate
+            vector database.
+        </p>
+    </div>
+
+    <div class="row g-4 mt-1">
+        <div class="col-lg-7">
+            <div class="rk-panel">
+                <h2 class="h5 mb-3">What's included</h2>
+                <p style="color: var(--rk-text-secondary);">
+                    Kit contents are coming soon — this page is live ahead of the
+                    finished kit so early buyers can be notified the moment it
+                    ships. Once published, it will walk through wiring up
+                    Elasticsearch's <code>semantic_text</code> field and a hybrid
+                    BM25 + semantic retriever in each of the three stacks below,
+                    the same pattern implemented in this repository.
+                </p>
+                <ul class="rk-kit-list mt-3">
+                    <li>Setup guide for Flask, Django, and Node</li>
+                    <li>Hybrid lexical + semantic query examples</li>
+                    <li>Index mapping and reindexing scripts</li>
+                </ul>
+                <p class="rk-search-hint mt-3 mb-0">
+                    Exact contents and format (a repo, a zip, or both) are still
+                    being finalized.
+                </p>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="rk-panel text-center">
+                <div class="rk-kit-price">{{ price_label }} <span>one-time</span></div>
+                <p class="rk-search-hint mt-2 mb-3">
+                    Single payment, lifetime access to what ships. No subscription.
+                </p>
+                {% if stripe_configured %}
+                    <form method="POST" action="{{ url_for('stripe_checkout') }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-primary w-100">
+                            Buy now &rarr;
+                        </button>
+                    </form>
+                    <p class="rk-search-hint mt-2 mb-0">Secure checkout via Stripe.</p>
+                {% else %}
+                    <button type="button" class="btn btn-primary w-100" disabled>
+                        Checkout not yet configured
+                    </button>
+                    <p class="rk-search-hint mt-2 mb-0">
+                        The site owner still needs to set <code>STRIPE_SECRET_KEY</code>,
+                        <code>STRIPE_PRICE_ID</code>, and <code>STRIPE_WEBHOOK_SECRET</code>.
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

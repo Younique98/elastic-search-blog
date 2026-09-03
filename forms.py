@@ -6,8 +6,18 @@ hand-rolling each one the way the public-facing search forms in
 templates/index.html do.
 """
 from flask_wtf import FlaskForm
-from wtforms import PasswordField, StringField, SubmitField, TextAreaField
-from wtforms.validators import DataRequired, Length
+from wtforms import EmailField, PasswordField, StringField, SubmitField, TextAreaField
+from wtforms.validators import DataRequired, Email, Length
+
+
+class NewsletterForm(FlaskForm):
+    """Email-capture form used site-wide (see the footer in base.html)
+    to start building a subscriber list from day one, ahead of any paid
+    product. Deliberately just an email — no name, no preferences — to
+    keep the ask small enough that a first-time visitor actually
+    completes it."""
+    email = EmailField('Email address', validators=[DataRequired(), Email()])
+    submit = SubmitField('Subscribe')
 
 
 class LoginForm(FlaskForm):

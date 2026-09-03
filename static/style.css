@@ -571,3 +571,90 @@ mark {
   padding: 0 0.15rem;
   border-radius: 0.15rem;
 }
+
+/* Footer / newsletter — same rk-panel-style surface as the rest of the
+   product (--rk-surface on --rk-border), reusing tokens rather than
+   introducing a new footer-specific color. */
+.rk-footer {
+  margin-top: var(--space-8);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--rk-border);
+}
+
+.rk-newsletter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  background: var(--rk-surface);
+  border: 1px solid var(--rk-border);
+  border-radius: var(--rk-radius-lg);
+  padding: var(--space-3);
+}
+
+.rk-newsletter-form {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.rk-newsletter-form .form-control {
+  min-width: 15rem;
+}
+
+@media (max-width: 640px) {
+  .rk-newsletter {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: left;
+  }
+  .rk-newsletter-form {
+    flex-direction: column;
+  }
+  .rk-newsletter-form .form-control {
+    min-width: 0;
+  }
+}
+
+/* Starter Kit landing page */
+.rk-kit-hero {
+  text-align: center;
+  padding: var(--space-6) var(--space-2) var(--space-4);
+}
+
+.rk-kit-price {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--rk-accent);
+}
+
+.rk-kit-price span {
+  font-size: 1rem;
+  color: var(--rk-text-tertiary);
+  font-weight: 500;
+}
+
+.rk-kit-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: var(--space-1);
+}
+
+.rk-kit-list li {
+  display: flex;
+  gap: 0.6rem;
+  align-items: baseline;
+  color: var(--rk-text-secondary);
+  font-size: 0.95rem;
+}
+
+.rk-kit-list li::before {
+  content: '\2713';
+  color: var(--rk-accent);
+  font-weight: 700;
+  flex: none;
+}
