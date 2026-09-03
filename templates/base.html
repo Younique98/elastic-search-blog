@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="dark">
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -23,45 +23,42 @@
         <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet" />
     </head>
     <body>
-        <div class="container">
-            <nav
-                class="navbar rk-navbar border-bottom border-body mb-3"
-                data-bs-theme="dark"
-            >
-                <div class="container-fluid">
-                    <a class="navbar-brand rk-brand" href="{{ url_for('index') }}">
-                        <img
-                            src="{{ url_for('static', filename='retrievalkit-mark.svg') }}"
-                            alt="RetrievalKit logo"
-                            width="26"
-                            height="26"
-                            class="d-inline-block align-text-top me-2"
-                        />
-                        RetrievalKit
-                    </a>
-                    <ul class="navbar-nav flex-row ms-auto">
-                        {% if current_user.is_authenticated %}
-                            <li class="nav-item me-3">
-                                <a class="nav-link" href="{{ url_for('admin_dashboard') }}">Manage documents</a>
-                            </li>
-                            <li class="nav-item">
-                                <form method="POST" action="{{ url_for('admin_logout') }}" class="d-inline">
-                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                    <button type="submit" class="btn btn-link nav-link p-0">Log out</button>
-                                </form>
-                            </li>
-                        {% else %}
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ url_for('admin_login') }}">Admin login</a>
-                            </li>
-                        {% endif %}
-                    </ul>
-                </div>
-            </nav>
+        <nav class="navbar rk-navbar mb-4">
+            <div class="container">
+                <a class="navbar-brand rk-brand" href="{{ url_for('index') }}">
+                    <img
+                        src="{{ url_for('static', filename='retrievalkit-mark.svg') }}"
+                        alt="RetrievalKit logo"
+                        width="26"
+                        height="26"
+                        class="d-inline-block align-text-top me-2"
+                    />
+                    RetrievalKit
+                </a>
+                <ul class="navbar-nav flex-row ms-auto">
+                    {% if current_user.is_authenticated %}
+                        <li class="nav-item me-3">
+                            <a class="nav-link" href="{{ url_for('admin_dashboard') }}">Manage documents</a>
+                        </li>
+                        <li class="nav-item">
+                            <form method="POST" action="{{ url_for('admin_logout') }}" class="d-inline">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn btn-link nav-link p-0">Log out</button>
+                            </form>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('admin_login') }}">Admin login</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </nav>
+        <div class="container pb-5">
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                     {% for category, message in messages %}
-                        <div class="alert alert-{{ 'danger' if category == 'error' else category }}" role="alert">
+                        <div class="alert alert-{{ 'danger' if category == 'error' else category }} mb-4" role="alert">
                             {{ message }}
                         </div>
                     {% endfor %}

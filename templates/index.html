@@ -1,7 +1,6 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h1 class="visually-hidden">RetrievalKit: hybrid search and RAG retrieval demo</h1>
     {% if not results and request.method != 'POST' %}
         <div class="rk-hero">
             <span class="rk-badge">Live demo</span>
@@ -14,21 +13,23 @@
             <div class="rk-steps">
                 <div class="rk-step">
                     <span class="rk-step-num">1</span>
-                    <h3>Lexical match</h3>
+                    <h2 class="h6">Lexical match</h2>
                     <p>BM25 finds documents that share your query's actual words.</p>
                 </div>
                 <div class="rk-step">
                     <span class="rk-step-num">2</span>
-                    <h3>Semantic match</h3>
+                    <h2 class="h6">Semantic match</h2>
                     <p>Elasticsearch's built-in inference finds documents that share the meaning.</p>
                 </div>
                 <div class="rk-step">
                     <span class="rk-step-num">3</span>
-                    <h3>Merged ranking</h3>
+                    <h2 class="h6">Merged ranking</h2>
                     <p>Reciprocal Rank Fusion combines both into one relevance-ranked result set.</p>
                 </div>
             </div>
         </div>
+    {% else %}
+        <h1 class="visually-hidden">RetrievalKit: hybrid search and RAG retrieval demo</h1>
     {% endif %}
 
     <div class="rk-search-wrap">
