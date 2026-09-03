@@ -1,86 +1,117 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h1 class="visually-hidden">Elastic Search Blog: search engineering &amp; career articles</h1>
     {% if not results and request.method != 'POST' %}
-        <div class="mb-4">
-            <p class="lead">
-                Elastic Search Blog is a self-hostable search-and-discovery layer for blogs and documentation sites,
-                built on Elasticsearch instead of a plain SQL <code>LIKE '%query%'</code> query.
+        <section class="hero">
+            <p class="hero-eyebrow">Self-hosted · Elasticsearch-powered</p>
+            <h1>Search engineering &amp; career articles</h1>
+            <p class="hero-lead">
+                A self-hostable search-and-discovery layer for blogs and documentation sites,
+                built on Elasticsearch instead of a plain SQL <code>LIKE '%query%'</code> query:
+                relevance-ranked results, typo-tolerant fuzzy matching, matched-term highlighting,
+                and faceted filtering by category, tag, and year — the kind of search experience
+                teams normally pay a hosted SaaS like Algolia for, running entirely on your own
+                infrastructure.
             </p>
-            <p>
-                That means relevance-ranked results (not just substring matches), typo-tolerant fuzzy matching,
-                matched-term highlighting, and faceted filtering by category, tag, and year — the kind of search
-                experience teams normally pay a hosted SaaS like Algolia for, running entirely on your own
-                infrastructure. Publish and edit posts from the <a href="{{ url_for('admin_login') }}">admin panel</a>;
+            <div class="search-card">
+                <form method="POST" action="{{ url_for('handle_search') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <label for="query" class="visually-hidden">Search articles</label>
+                    <div class="search-input-row">
+                        <input type="text" class="form-control" name="query" id="query" placeholder="Search articles…" value="{{ query }}" autofocus>
+                        <button type="submit" class="btn btn-primary">Search</button>
+                    </div>
+                    <div id="query-help" class="form-text">
+                        Narrow results with filters, e.g. <code>category:job interviews</code> or <code>year:2024</code>.
+                    </div>
+                </form>
+            </div>
+            <p class="mt-4">
+                Publish and edit posts from the <a href="{{ url_for('admin_login') }}">admin panel</a>;
                 every save updates the search index immediately.
             </p>
+        </section>
+    {% else %}
+        <h1 class="visually-hidden">Elastic Search Blog: search engineering &amp; career articles</h1>
+        <div class="search-card mb-4">
+            <form method="POST" action="{{ url_for('handle_search') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <label for="query" class="visually-hidden">Search articles</label>
+                <div class="search-input-row">
+                    <input type="text" class="form-control" name="query" id="query" placeholder="Search articles…" value="{{ query }}" autofocus>
+                    <button type="submit" class="btn btn-primary">Search</button>
+                </div>
+                <div id="query-help" class="form-text">
+                    Narrow results with filters, e.g. <code>category:job interviews</code> or <code>year:2024</code>.
+                </div>
+            </form>
         </div>
     {% endif %}
-    <form method="POST" action="{{ url_for('handle_search') }}">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <div class="mb-3">
-          <label for="query" class="form-label">Search articles</label>
-          <input type="text" class="form-control" name="query" id="query" placeholder="Enter your search query" value="{{ query }}" autofocus>
-          <div id="query-help" class="form-text">Narrow results with filters, e.g. <code>category:job interviews</code> or <code>year:2024</code>.</div>
-      </div>
-    </form>
+
     {% if results %}
-        <div class="row mb-3">
-            <div class="col-2 mt-2">
+        <div class="row g-4">
+            <div class="col-12 col-md-3">
                 <p><a href="javascript:history.back(1)">← Back to previous search</a></p>
-                {% for agg in aggs %}
-                    {% if aggs[agg] %}
-                        <h2 class="facet-heading mt-3">{{ agg }}</h2>
-                        {% for key, count in aggs[agg].items() %}
-                            <form method="POST">
-                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                <input type="hidden" name="query" value="{{ agg|lower }}:{{key}} {{ query }}">
-                                <button type="submit" class="btn btn-link btn-sm"{% if aggs[agg]|length == 1 %} disabled{% endif %}>{{ key }} ({{ count }})<span class="visually-hidden"> in {{ agg }}</span></button>
-                            </form>
-                        {% endfor %}
-                    {% endif %}
-                {% endfor %}
+                <div class="facets">
+                    {% for agg in aggs %}
+                        {% if aggs[agg] %}
+                            <div class="facet-group">
+                                <h2 class="facet-heading mb-0">{{ agg }}</h2>
+                                <div class="facet-pill-list">
+                                    {% for key, count in aggs[agg].items() %}
+                                        <form method="POST" class="d-inline">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                            <input type="hidden" name="query" value="{{ agg|lower }}:{{key}} {{ query }}">
+                                            <button type="submit" class="facet-pill"{% if aggs[agg]|length == 1 %} disabled{% endif %}>
+                                                {{ key }} <span class="count">({{ count }})</span><span class="visually-hidden"> in {{ agg }}</span>
+                                            </button>
+                                        </form>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
             </div>
-            <div class="col-10">
-                <div class="row mb-3">
-                    <div class="col-sm-auto my-auto">
-                        Showing results {{ from_ + 1 }}-{{ from_ + results|length }} out of {{ total }}.
-                    </div>
-                    {% if from_ > 0 %}
-                        <div class="col-sm-auto my-auto">
-                            <a href="javascript:history.back(1)" class="btn btn-primary">← Previous page</a>
-                        </div>
-                    {% endif %}
-                    {% if from_ + results|length < total %}
-                        <div class="col-sm-auto my-auto">
-                            <form method="POST">
+            <div class="col-12 col-md-9">
+                <div class="results-toolbar">
+                    <span>Showing results {{ from_ + 1 }}-{{ from_ + results|length }} out of {{ total }}.</span>
+                    <div class="d-flex gap-2">
+                        {% if from_ > 0 %}
+                            <a href="javascript:history.back(1)" class="btn btn-outline-primary btn-sm">← Previous page</a>
+                        {% endif %}
+                        {% if from_ + results|length < total %}
+                            <form method="POST" class="d-inline">
                                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                 <input type="hidden" name="query" value="{{ query }}">
                                 <input type="hidden" name="from_" value="{{ from_ + results|length }}">
-                                <button type="submit" class="btn btn-primary">Next page →</button>
+                                <button type="submit" class="btn btn-outline-primary btn-sm">Next page →</button>
                             </form>
-                        </div>
-                    {% endif %}
-                    <div class="col"></div>
+                        {% endif %}
+                    </div>
                 </div>
                 {% for result in results %}
-                    <div class="search-hit">
-                        <p class="search-hit-title mb-1">
-                            {{ from_ + loop.index }}. <a href="{{ url_for('get_document', id=result._id) }}">{{ result.display_name }}</a>
-                        </p>
-                        <p class="mb-1">{{ result.display_summary }}</p>
-                        <p class="search-meta mb-0">
-                            category:{{ result._source.category }}
-                            {% if result._source.tags %} · tags:{{ result._source.tags | join(', ') }}{% endif %}
-                            · updated:{{ result._source.updated_at | default(result._source.created_on) }}
-                            {% if result._score %} · relevance:{{ '%.2f' | format(result._score) }}{% endif %}
-                        </p>
-                    </div>
+                    <article class="result-card">
+                        <p class="result-rank mb-0">{{ from_ + loop.index }}</p>
+                        <h2 class="result-title">
+                            <a href="{{ url_for('get_document', id=result._id) }}">{{ result.display_name }}</a>
+                        </h2>
+                        <p class="result-summary">{{ result.display_summary }}</p>
+                        <div class="result-meta">
+                            <span class="badge-chip category">{{ result._source.category }}</span>
+                            {% for tag in result._source.tags or [] %}
+                                <span class="badge-chip tag">{{ tag }}</span>
+                            {% endfor %}
+                            <span class="badge-chip meta">{{ result._source.updated_at | default(result._source.created_on) }}</span>
+                            {% if result._score %}<span class="badge-chip meta">relevance {{ '%.2f' | format(result._score) }}</span>{% endif %}
+                        </div>
+                    </article>
                 {% endfor %}
             </div>
         </div>
     {% elif request.method == 'POST' %}
-        <p>No results found for &ldquo;{{ query }}&rdquo;. Try a different search term or remove a <code>category:</code>/<code>year:</code> filter.</p>
+        <div class="result-card">
+            <p class="mb-0">No results found for &ldquo;{{ query }}&rdquo;. Try a different search term or remove a <code>category:</code>/<code>year:</code> filter.</p>
+        </div>
     {% endif %}
 {% endblock %}

@@ -1,26 +1,28 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1 class="h3 mb-3">Admin login</h1>
-    {% if error %}
-        <div class="alert alert-danger" role="alert">{{ error }}</div>
-    {% endif %}
-    <form method="POST" action="{{ url_for('admin_login') }}" class="col-md-5" novalidate>
-        {{ form.hidden_tag() }}
-        <div class="mb-3">
-            {{ form.username.label(class_='form-label') }}
-            {{ form.username(class_='form-control', autofocus=true) }}
-            {% for e in form.username.errors %}
-                <div class="text-danger small">{{ e }}</div>
-            {% endfor %}
-        </div>
-        <div class="mb-3">
-            {{ form.password.label(class_='form-label') }}
-            {{ form.password(class_='form-control') }}
-            {% for e in form.password.errors %}
-                <div class="text-danger small">{{ e }}</div>
-            {% endfor %}
-        </div>
-        {{ form.submit(class_='btn btn-primary') }}
-    </form>
+    <div class="form-card form-card-narrow">
+        <h1 class="h3 mb-3">Admin login</h1>
+        {% if error %}
+            <div class="alert alert-danger" role="alert">{{ error }}</div>
+        {% endif %}
+        <form method="POST" action="{{ url_for('admin_login') }}" novalidate>
+            {{ form.hidden_tag() }}
+            <div class="mb-3">
+                {{ form.username.label(class_='form-label') }}
+                {{ form.username(class_='form-control', autofocus=true) }}
+                {% for e in form.username.errors %}
+                    <div class="text-danger small">{{ e }}</div>
+                {% endfor %}
+            </div>
+            <div class="mb-3">
+                {{ form.password.label(class_='form-label') }}
+                {{ form.password(class_='form-control') }}
+                {% for e in form.password.errors %}
+                    <div class="text-danger small">{{ e }}</div>
+                {% endfor %}
+            </div>
+            {{ form.submit(class_='btn btn-primary w-100') }}
+        </form>
+    </div>
 {% endblock %}

@@ -7,6 +7,7 @@
     </div>
 
     {% if posts %}
+        <div class="dashboard-card">
         <div class="table-responsive">
             <table class="table align-middle">
                 <caption class="visually-hidden">All posts, newest updated first</caption>
@@ -24,8 +25,8 @@
                             <td>
                                 <a href="{{ url_for('get_document', id=post.id) }}">{{ post.name }}</a>
                             </td>
-                            <td>{{ post.category }}</td>
-                            <td>{{ post.updated_at }}</td>
+                            <td><span class="badge-chip category">{{ post.category }}</span></td>
+                            <td class="text-muted">{{ post.updated_at }}</td>
                             <td class="text-end">
                                 <a href="{{ url_for('admin_edit_post', id=post.id) }}" class="btn btn-sm btn-outline-primary">
                                     Edit<span class="visually-hidden"> {{ post.name }}</span>
@@ -42,6 +43,7 @@
                     {% endfor %}
                 </tbody>
             </table>
+        </div>
         </div>
     {% else %}
         <p>No posts yet. <a href="{{ url_for('admin_new_post') }}">Create the first one</a>.</p>

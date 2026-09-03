@@ -21,14 +21,29 @@
 
   --accent: #8a5a08;       /* gold — text/icon use on paper or surface */
   --accent-strong: #e3a83d; /* gold — for use on the dark navbar only */
+  --accent-soft: #f6e6c2;  /* gold tint — chip fills, badge backgrounds */
   --link: #0b6e62;         /* teal — hyperlinks, secondary accent */
+  --link-soft: #dcece9;    /* teal tint — badge backgrounds */
   --mark-bg: #fce49a;      /* highlighted search-term background */
 
   --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
   --font-body: 'Source Sans 3', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
 
-  --radius: 0.5rem;
+  --radius-sm: 0.5rem;
+  --radius: 0.875rem;
+  --radius-lg: 1.25rem;
+  --radius-pill: 999px;
+
+  /* Soft, warm-tinted shadows (never pure black) so cards read as lifted
+     paper rather than generic UI chrome. */
+  --shadow-sm: 0 1px 2px rgba(34, 29, 20, 0.06), 0 1px 1px rgba(34, 29, 20, 0.04);
+  --shadow-md: 0 8px 24px rgba(34, 29, 20, 0.08), 0 2px 6px rgba(34, 29, 20, 0.05);
+  --shadow-lg: 0 20px 45px rgba(34, 29, 20, 0.12), 0 6px 16px rgba(34, 29, 20, 0.06);
+}
+
+* {
+  box-sizing: border-box;
 }
 
 html {
@@ -41,16 +56,18 @@ body {
   font-family: var(--font-body);
   font-size: 1.0625rem;
   line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
 }
 
 .container {
-  max-width: 960px;
+  max-width: 1080px;
 }
 
 h1, h2, h3, h4, .navbar-brand {
   font-family: var(--font-display);
   font-weight: 600;
   letter-spacing: -0.01em;
+  text-wrap: balance;
 }
 
 main p, main li {
@@ -79,32 +96,42 @@ code {
   font-family: var(--font-mono);
   background: var(--line-soft);
   color: var(--ink);
-  padding: 0.1em 0.35em;
-  border-radius: 0.25rem;
-  font-size: 0.9em;
+  padding: 0.1em 0.4em;
+  border-radius: 0.3rem;
+  font-size: 0.85em;
 }
 
 mark {
   background-color: var(--mark-bg);
   color: var(--ink);
-  padding: 0 0.15em;
-  border-radius: 0.2rem;
+  padding: 0 0.2em;
+  border-radius: 0.25rem;
 }
 
-/* Navbar — the one dark surface in an otherwise light, paper-toned page,
-   styled as a distinct "spine" rather than reskinned Bootstrap navbar-dark. */
+/* ---------------------------------------------------------------------
+   Navbar — a fixed, slightly elevated spine, not the page's top border.
+   --------------------------------------------------------------------- */
 .navbar {
   background-color: var(--ink) !important;
   border-bottom: none !important;
-  padding-top: 0.85rem;
-  padding-bottom: 0.85rem;
+  padding-top: 1.1rem;
+  padding-bottom: 1.1rem;
+  box-shadow: var(--shadow-md);
+  position: relative;
+  z-index: 10;
+}
+.navbar .container-fluid {
+  max-width: 1112px;
+  margin: 0 auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
 }
 .navbar-brand {
   color: var(--paper) !important;
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  font-size: 1.25rem;
+  gap: 0.65rem;
+  font-size: 1.3rem;
 }
 /* An explicit, dimmer-than-paper tone rather than opacity: opacity on a
    <button> also fades its own background, which — since browsers give
@@ -114,6 +141,8 @@ mark {
    contrast because of exactly this). Verified 11.1:1 on --ink. */
 .navbar .nav-link {
   color: #d8d2c2 !important;
+  font-weight: 600;
+  font-size: 0.95rem;
 }
 .navbar .nav-link:hover,
 .navbar .nav-link:focus-visible {
@@ -125,19 +154,218 @@ mark {
   border: none;
 }
 
+/* ---------------------------------------------------------------------
+   Hero — the home page's hero copy + search form get real weight: a
+   generous band of its own, not the first paragraph on the page.
+   --------------------------------------------------------------------- */
+.hero {
+  padding: 3.5rem 0 3rem;
+  text-align: center;
+}
+.hero-eyebrow {
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.75rem;
+  color: var(--accent);
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+.hero h1 {
+  font-size: clamp(2rem, 4vw, 2.75rem);
+  margin: 0 auto 1rem;
+  max-width: 34ch;
+}
+.hero-lead {
+  font-family: var(--font-body);
+  font-size: 1.15rem;
+  color: var(--muted);
+  max-width: 56ch;
+  margin: 0 auto 1.75rem;
+}
+.hero-lead code {
+  font-size: 0.85em;
+}
+
+.search-card {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 1.5rem;
+  max-width: 640px;
+  margin: 0 auto;
+  text-align: left;
+}
+.search-input-row {
+  display: flex;
+  gap: 0.6rem;
+}
+.search-input-row .form-control {
+  border-radius: var(--radius-pill);
+  padding: 0.75rem 1.25rem;
+  font-size: 1.05rem;
+  border-width: 2px;
+}
+.search-input-row .btn {
+  border-radius: var(--radius-pill);
+  padding: 0.75rem 1.5rem;
+  white-space: nowrap;
+}
+.search-card .form-text {
+  padding: 0 0.5rem;
+  margin-top: 0.6rem;
+}
+
+.results-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+/* Pill-shaped facet filters, wrapped in a flex row rather than a bare
+   underlined link list — this is the actual affordance difference
+   between "styled Bootstrap" and a real filter UI. */
+.facets {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+.facet-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.facet-heading {
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.7rem;
+  color: var(--muted);
+  font-weight: 600;
+}
+.facet-pill-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.facet-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 1.5px solid var(--line-soft);
+  background: var(--surface);
+  color: var(--ink);
+  border-radius: var(--radius-pill);
+  padding: 0.35rem 0.85rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: border-color 120ms ease, background-color 120ms ease;
+}
+.facet-pill:hover:not(:disabled) {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.facet-pill:disabled {
+  color: var(--muted);
+  cursor: default;
+  opacity: 0.7;
+}
+.facet-pill .count {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+/* Search result / dashboard-row cards — real elevation, not a border
+   between flat rows. */
+.result-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  transition: box-shadow 150ms ease, transform 150ms ease;
+}
+.result-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+.result-rank {
+  font-family: var(--font-mono);
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.result-title {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0.15rem 0 0.5rem;
+}
+.result-summary {
+  color: var(--ink);
+  margin-bottom: 0.85rem;
+}
+.result-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+}
+.badge-chip {
+  display: inline-flex;
+  align-items: center;
+  border-radius: var(--radius-pill);
+  padding: 0.2rem 0.65rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.badge-chip.category {
+  background: var(--accent-soft);
+  color: #6b4306;
+}
+.badge-chip.tag {
+  background: var(--link-soft);
+  color: #084f47;
+}
+.badge-chip.meta {
+  background: var(--line-soft);
+  /* --muted only clears AA against --paper/--surface (verified) — on
+     this chip's darker --line-soft fill it drops to 4.21:1. A dedicated,
+     separately-verified tone (5.59:1) rather than reusing --muted here. */
+  color: #5a5343;
+}
+
 .lead {
   font-family: var(--font-display);
   font-size: 1.2rem;
   color: var(--ink);
 }
 
-/* Buttons — gold fill always pairs with white text (verified 5.9:1); the
-   ink/gold combination fails AA and is never used as a button fill. */
+/* ---------------------------------------------------------------------
+   Buttons — gold fill always pairs with white text (verified 5.9:1);
+   the ink/gold combination fails AA and is never used as a button fill.
+   --------------------------------------------------------------------- */
+.btn {
+  border-radius: var(--radius-pill);
+  font-weight: 600;
+  padding: 0.55rem 1.2rem;
+}
+.btn-sm {
+  padding: 0.35rem 0.85rem;
+  border-radius: var(--radius-pill);
+}
 .btn-primary {
   background-color: var(--accent);
   border-color: var(--accent);
   color: #fff;
-  font-weight: 600;
+  box-shadow: var(--shadow-sm);
 }
 .btn-primary:hover,
 .btn-primary:focus {
@@ -168,82 +396,105 @@ mark {
 }
 .btn-link {
   color: var(--link);
+  border-radius: var(--radius-sm);
 }
 
-/* Forms */
+/* ---------------------------------------------------------------------
+   Forms — an elevated card, not bare fields floating on the page.
+   --------------------------------------------------------------------- */
+.form-card {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 2rem;
+}
+.form-card.form-card-narrow {
+  max-width: 440px;
+  margin: 2rem auto 0;
+}
 .form-label {
   font-weight: 600;
   color: var(--ink);
+  font-size: 0.9rem;
 }
 .form-control,
 textarea.form-control {
   background-color: var(--surface);
-  border-color: var(--line);
+  border-color: var(--line-soft);
+  border-width: 1.5px;
   color: var(--ink);
+  border-radius: var(--radius-sm);
+  padding: 0.6rem 0.9rem;
 }
 .form-control:focus {
   border-color: var(--link);
-  box-shadow: 0 0 0 0.2rem rgba(11, 110, 98, 0.2);
+  box-shadow: 0 0 0 0.2rem rgba(11, 110, 98, 0.15);
 }
 .form-text {
   color: var(--muted);
+  font-size: 0.85rem;
+}
+.text-muted {
+  color: var(--muted) !important;
 }
 
-/* Search results */
-.search-hit {
-  padding: 1rem 0;
-  border-bottom: 1px solid var(--line-soft);
+/* ---------------------------------------------------------------------
+   Article view
+   --------------------------------------------------------------------- */
+.article-card {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: 2.5rem;
+  margin-top: 1.5rem;
 }
-.search-hit:first-child {
-  padding-top: 0;
-}
-.search-hit-title {
-  font-family: var(--font-display);
-  font-size: 1.15rem;
-  font-weight: 600;
-}
-.search-meta {
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-  color: var(--muted);
+.article-card h1 {
+  margin-bottom: 1.25rem;
 }
 
-.facet-heading {
-  font-family: var(--font-mono);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  font-size: 0.75rem;
-  color: var(--muted);
+/* ---------------------------------------------------------------------
+   Admin dashboard — table wrapped as an elevated card; category shown
+   as a badge chip rather than plain text.
+   --------------------------------------------------------------------- */
+.dashboard-card {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: 0.5rem 1.5rem;
+  overflow: hidden;
 }
-
-/* Tables */
 .table {
   color: var(--ink);
+  margin-bottom: 0;
 }
 .table thead th {
   font-family: var(--font-mono);
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   color: var(--muted);
-  border-bottom-color: var(--line);
+  border-bottom-color: var(--line-soft);
+  padding-top: 1.1rem;
+  padding-bottom: 0.85rem;
 }
-/* No zebra striping: --link/--accent text inside the table only clears
-   AA (4.5:1) against --paper/--surface, verified via axe-core — a
-   striped row's darker fill dropped both below threshold. Row dividers
-   via border-color carry the same scan-a-row affordance without it. */
+.table td {
+  padding-top: 0.9rem;
+  padding-bottom: 0.9rem;
+  vertical-align: middle;
+}
 .table td, .table th {
   border-color: var(--line-soft);
 }
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
 
 /* Alerts — keep Bootstrap's semantic colors (they already carry their
-   own AA-checked palette), just align typography with the rest of the
-   page and soften the shape to match --radius. */
+   own AA-checked palette), just align shape/typography with the rest
+   of the page. */
 .alert {
   border-radius: var(--radius);
   font-family: var(--font-body);
-}
-
-.card, .table-responsive {
-  border-color: var(--line-soft);
+  box-shadow: var(--shadow-sm);
+  border-width: 0;
 }

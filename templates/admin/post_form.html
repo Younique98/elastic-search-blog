@@ -2,6 +2,7 @@
 
 {% block content %}
     <h1 class="h3 mb-3">{{ 'Edit post' if mode == 'edit' else 'New post' }}</h1>
+    <div class="form-card">
     <form method="POST" novalidate>
         {{ form.hidden_tag() }}
         <div class="mb-3">
@@ -48,4 +49,5 @@
             <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-secondary">Cancel</a>
         </div>
     </form>
+    </div>
 {% endblock %}

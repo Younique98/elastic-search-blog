@@ -1,23 +1,23 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <p><a href="javascript:history.back(1)" class="btn btn-outline-primary btn-sm">← Back to search results</a></p>
-    <h1 class="mt-3">{{ title }}</h1>
-    <article>
+    <p class="mt-3"><a href="javascript:history.back(1)" class="btn btn-outline-primary btn-sm">← Back to search results</a></p>
+    <article class="article-card">
+        <h1>{{ title }}</h1>
         {% for paragraph in paragraphs %}
             <p>{{ paragraph }}</p>
         {% endfor %}
+        {% if related %}
+            <hr class="my-4" style="border-color: var(--line-soft);">
+            <h2 class="h5">Related articles</h2>
+            <ul>
+                {% for item in related %}
+                    <li>
+                        <a href="{{ url_for('get_document', id=item._id) }}">{{ item._source.name }}</a>
+                        — {{ item._source.summary }}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
     </article>
-    {% if related %}
-        <hr class="my-4" style="border-color: var(--line-soft);">
-        <h2 class="h5">Related articles</h2>
-        <ul>
-            {% for item in related %}
-                <li>
-                    <a href="{{ url_for('get_document', id=item._id) }}">{{ item._source.name }}</a>
-                    — {{ item._source.summary }}
-                </li>
-            {% endfor %}
-        </ul>
-    {% endif %}
 {% endblock %}

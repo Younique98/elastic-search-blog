@@ -31,42 +31,42 @@
         />
     </head>
     <body>
-        <div class="container">
-            <nav class="navbar mb-4">
-                <div class="container-fluid">
-                    <a class="navbar-brand" href="{{ url_for('index') }}">
-                        <img
-                            src="{{ url_for('static', filename='mark.svg') }}"
-                            alt=""
-                            width="30"
-                            height="30"
-                            class="d-inline-block"
-                        />
-                        Elastic Search Blog
-                    </a>
-                    <ul class="navbar-nav flex-row ms-auto">
-                        {% if current_user.is_authenticated %}
-                            <li class="nav-item me-3">
-                                <a class="nav-link" href="{{ url_for('admin_dashboard') }}">Manage posts</a>
-                            </li>
-                            <li class="nav-item">
-                                <form method="POST" action="{{ url_for('admin_logout') }}" class="d-inline">
-                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                    <button type="submit" class="btn btn-link nav-link p-0">Log out</button>
-                                </form>
-                            </li>
-                        {% else %}
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ url_for('admin_login') }}">Admin login</a>
-                            </li>
-                        {% endif %}
-                    </ul>
-                </div>
-            </nav>
+        <nav class="navbar mb-5">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="{{ url_for('index') }}">
+                    <img
+                        src="{{ url_for('static', filename='mark.svg') }}"
+                        alt=""
+                        width="30"
+                        height="30"
+                        class="d-inline-block"
+                    />
+                    Elastic Search Blog
+                </a>
+                <ul class="navbar-nav flex-row ms-auto">
+                    {% if current_user.is_authenticated %}
+                        <li class="nav-item me-3">
+                            <a class="nav-link" href="{{ url_for('admin_dashboard') }}">Manage posts</a>
+                        </li>
+                        <li class="nav-item">
+                            <form method="POST" action="{{ url_for('admin_logout') }}" class="d-inline">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn btn-link nav-link p-0">Log out</button>
+                            </form>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('admin_login') }}">Admin login</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </nav>
+        <div class="container pb-5">
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                     {% for category, message in messages %}
-                        <div class="alert alert-{{ 'danger' if category == 'error' else category }}" role="alert">
+                        <div class="alert alert-{{ 'danger' if category == 'error' else category }} mb-4" role="alert">
                             {{ message }}
                         </div>
                     {% endfor %}
