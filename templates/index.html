@@ -4,89 +4,118 @@
     <h1 class="visually-hidden">RetrievalKit: hybrid search and RAG retrieval demo</h1>
     {% if not results and request.method != 'POST' %}
         <div class="rk-hero">
-            <span class="rk-badge">Live demo — sample engineering knowledge base</span>
-            <p class="lead">
-                RetrievalKit is self-hostable hybrid retrieval infrastructure for engineering teams building
-                RAG pipelines and AI agents on Elasticsearch.
+            <span class="rk-badge">Live demo</span>
+            <h1>Hybrid search for your Elasticsearch cluster</h1>
+            <p class="rk-subhead">
+                Lexical + semantic retrieval in one query. No second vector database, no external
+                embedding service — it runs on the Elasticsearch you already operate.
             </p>
-            <p>
-                Every query below runs BM25 lexical search and Elasticsearch's built-in semantic retrieval in
-                parallel, merged with Reciprocal Rank Fusion — so a query like <code>why do requests fail under
-                load</code> can surface a doc about connection pool exhaustion even if it never uses those words.
-                No second vector database, no external embedding service: the semantic index lives inside the
-                same Elasticsearch cluster you already operate.
-            </p>
-            <p class="mb-0">
-                This search box runs against a sample engineering-documentation corpus so you can try it live.
-                Manage documents from the <a href="{{ url_for('admin_login') }}">admin panel</a>; every save
-                updates the index immediately.
-            </p>
+
+            <div class="rk-steps">
+                <div class="rk-step">
+                    <span class="rk-step-num">1</span>
+                    <h3>Lexical match</h3>
+                    <p>BM25 finds documents that share your query's actual words.</p>
+                </div>
+                <div class="rk-step">
+                    <span class="rk-step-num">2</span>
+                    <h3>Semantic match</h3>
+                    <p>Elasticsearch's built-in inference finds documents that share the meaning.</p>
+                </div>
+                <div class="rk-step">
+                    <span class="rk-step-num">3</span>
+                    <h3>Merged ranking</h3>
+                    <p>Reciprocal Rank Fusion combines both into one relevance-ranked result set.</p>
+                </div>
+            </div>
         </div>
     {% endif %}
-    <form method="POST" action="{{ url_for('handle_search') }}">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <div class="mb-3">
-          <label for="query" class="form-label">Search the demo knowledge base</label>
-          <input type="text" class="form-control" name="query" id="query" placeholder="Try: why do requests fail under load" value="{{ query }}" autofocus>
-          <div id="query-help" class="form-text">Narrow results with filters, e.g. <code>category:incident-response</code> or <code>year:2025</code>.</div>
-      </div>
-    </form>
-    {% if results %}
-        <div class="row mb-3">
-            <div class="col-2 mt-2">
-                <p><a href="javascript:history.back(1)">← Back to previous search</a></p>
-                {% for agg in aggs %}
-                    {% if aggs[agg] %}
-                        <h2 class="h6 mt-3">{{ agg }}</h2>
-                        {% for key, count in aggs[agg].items() %}
-                            <form method="POST">
-                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                <input type="hidden" name="query" value="{{ agg|lower }}:{{key}} {{ query }}">
-                                <button type="submit" class="btn btn-link btn-sm"{% if aggs[agg]|length == 1 %} disabled{% endif %}>{{ key }} ({{ count }})<span class="visually-hidden"> in {{ agg }}</span></button>
-                            </form>
-                        {% endfor %}
-                    {% endif %}
+
+    <div class="rk-search-wrap">
+        <form method="POST" action="{{ url_for('handle_search') }}" id="rk-search-form">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <label for="query" class="visually-hidden">Search the demo knowledge base</label>
+          <input
+              type="text" class="rk-search-input" name="query" id="query"
+              placeholder="Try: why do requests fail under load" value="{{ query }}" autofocus
+          >
+        </form>
+        {% if not results and request.method != 'POST' %}
+            <p class="rk-search-hint text-center">
+                Filter with <code>category:incident-response</code> or <code>year:2025</code> —
+                or manage the demo docs from the <a href="{{ url_for('admin_login') }}">admin panel</a>.
+            </p>
+            <div class="rk-example-queries">
+                {% for example in ['why do requests fail under load', 'how do I rotate secrets safely', 'splitting a monolith'] %}
+                    <button type="button" class="rk-chip rk-example-chip" data-query="{{ example }}">{{ example }}</button>
                 {% endfor %}
             </div>
-            <div class="col-10">
-                <div class="row mb-3">
-                    <div class="col-sm-auto my-auto">
-                        Showing results {{ from_ + 1 }}-{{ from_ + results|length }} out of {{ total }}.
-                    </div>
-                    {% if from_ > 0 %}
-                        <div class="col-sm-auto my-auto">
-                            <a href="javascript:history.back(1)" class="btn btn-primary">← Previous page</a>
+        {% endif %}
+    </div>
+    <script>
+        document.querySelectorAll('.rk-example-chip').forEach(function (chip) {
+            chip.addEventListener('click', function () {
+                document.getElementById('query').value = chip.dataset.query;
+                document.getElementById('rk-search-form').submit();
+            });
+        });
+    </script>
+
+    {% if results %}
+        <div class="row mt-4">
+            <div class="col-md-3">
+                {% for agg in aggs %}
+                    {% if aggs[agg] %}
+                        <div class="rk-facet-group">
+                            <div class="rk-facet-title">{{ agg }}</div>
+                            {% for key, count in aggs[agg].items() %}
+                                <form method="POST">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <input type="hidden" name="query" value="{{ agg|lower }}:{{key}} {{ query }}">
+                                    <button type="submit" class="rk-facet-btn"{% if aggs[agg]|length == 1 %} disabled{% endif %}>{{ key }} <span class="text-muted">({{ count }})</span><span class="visually-hidden"> in {{ agg }}</span></button>
+                                </form>
+                            {% endfor %}
                         </div>
                     {% endif %}
-                    {% if from_ + results|length < total %}
-                        <div class="col-sm-auto my-auto">
-                            <form method="POST">
+                {% endfor %}
+                <p><a href="javascript:history.back(1)">&larr; Back to previous search</a></p>
+            </div>
+            <div class="col-md-9">
+                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                    <span class="rk-results-summary">
+                        Showing {{ from_ + 1 }}&ndash;{{ from_ + results|length }} of {{ total }}
+                    </span>
+                    <div class="d-flex gap-2">
+                        {% if from_ > 0 %}
+                            <a href="javascript:history.back(1)" class="btn btn-primary btn-sm">&larr; Previous</a>
+                        {% endif %}
+                        {% if from_ + results|length < total %}
+                            <form method="POST" class="d-inline">
                                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                 <input type="hidden" name="query" value="{{ query }}">
                                 <input type="hidden" name="from_" value="{{ from_ + results|length }}">
-                                <button type="submit" class="btn btn-primary">Next page →</button>
+                                <button type="submit" class="btn btn-primary btn-sm">Next &rarr;</button>
                             </form>
-                        </div>
-                    {% endif %}
-                    <div class="col"></div>
+                        {% endif %}
+                    </div>
                 </div>
                 {% for result in results %}
-                    <p>
-                        {{ from_ + loop.index }}. <b><a href="{{ url_for('get_document', id=result._id) }}">{{ result.display_name }}</a></b>
-                        <br>
-                        {{ result.display_summary }}
-                        <br>
-                        <small>
-                            Category: {{ result._source.category }}.
-                            {% if result._source.tags %}Tags: {{ result._source.tags | join(', ') }}.{% endif %}
-                            Last updated: {{ result._source.updated_at | default(result._source.created_on) }}.
-                            {% if result._score %}<i>(Relevance score: {{ '%.2f' | format(result._score) }})</i>{% endif %}
-                        </small>
-                    </p>
+                    <div class="rk-result-card">
+                        <div class="rk-result-title">
+                            {{ from_ + loop.index }}. <a href="{{ url_for('get_document', id=result._id) }}">{{ result.display_name }}</a>
+                        </div>
+                        <p class="rk-result-summary">{{ result.display_summary }}</p>
+                        <div class="rk-result-meta">
+                            {{ result._source.category }}
+                            {% if result._source.tags %} &middot; {{ result._source.tags | join(', ') }}{% endif %}
+                            &middot; updated {{ result._source.updated_at | default(result._source.created_on) }}
+                            {% if result._score %} &middot; score {{ '%.2f' | format(result._score) }}{% endif %}
+                        </div>
+                    </div>
                 {% endfor %}
             </div>
         </div>
     {% elif request.method == 'POST' %}
-        <p>No results found for &ldquo;{{ query }}&rdquo;. Try a different search term or remove a <code>category:</code>/<code>year:</code> filter.</p>
+        <p class="text-center mt-4">No results found for &ldquo;{{ query }}&rdquo;. Try a different search term or remove a <code>category:</code>/<code>year:</code> filter.</p>
     {% endif %}
 {% endblock %}
