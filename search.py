@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 from pprint import pprint
 import os
 import time
@@ -7,6 +8,13 @@ from dotenv import load_dotenv
 from elasticsearch import Elasticsearch, NotFoundError
 
 load_dotenv()
+
+# Resolved from this file's own location rather than a bare relative path,
+# the same way content.py already does — a relative 'data.json' depends on
+# the process's current working directory, which isn't guaranteed to be the
+# repo root in every deployment environment (confirmed fragile on Vercel,
+# where the actual entrypoint lives at api/index.py, not here).
+DATA_FILE = Path(__file__).parent / 'data.json'
 
 
 class Search:
@@ -48,6 +56,24 @@ class Search:
         client_info = self.es.info()
         print('Connected to Elasticsearch!')
         pprint(client_info.body)
+
+        # Self-healing for stateless deployments (Vercel functions, in
+        # particular): there's no shell to manually run `flask reindex`
+        # after pointing the app at a fresh cluster for the first time, and
+        # a missing index otherwise means every search 500s forever until
+        # someone notices and runs it by hand. Only triggers when the index
+        # is completely absent — never on an existing one, so this can
+        # never silently wipe real admin-managed content on a routine cold
+        # start.
+        try:
+            if not self.es.indices.exists(index='my_documents'):
+                print('my_documents index not found — running initial reindex from data.json')
+                self.reindex()
+        except Exception:
+            print(
+                'Could not verify/create the search index on startup; '
+                'leaving it for `flask reindex` to fix.'
+            )
 
     # create_index first deletes an index then ignores unavailable prevents call from failing when index name is not found and creates a new index with the same name
     #
@@ -123,7 +149,7 @@ class Search:
 # to regenerate the index
     def reindex(self):
         self.create_index()
-        with open('data.json', 'rt') as f:
+        with open(DATA_FILE, 'rt') as f:
             documents = json.loads(f.read())
         return self.insert_documents(documents)
 

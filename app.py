@@ -147,32 +147,53 @@ def handle_search():
         from_=from_,
     )
 
-    if es.semantic_enabled:
-        # Hybrid retrieval: BM25 lexical relevance and Elasticsearch's
-        # built-in semantic retrieval, merged with Reciprocal Rank Fusion.
-        # This is the actual product — a query like "why do requests
-        # start failing under load" should surface a doc about connection
-        # pool exhaustion even if it never says "requests" or "failing".
-        results = es.search(
-            retriever={
-                'rrf': {
-                    'retrievers': [
-                        {'standard': {'query': _lexical_query(parsed_query, filters)}},
-                        {'standard': {'query': _semantic_query(parsed_query, filters)}},
-                    ],
-                    'rank_window_size': 50,
-                    'rank_constant': 20,
-                }
-            },
-            **search_kwargs,
+    try:
+        if es.semantic_enabled:
+            # Hybrid retrieval: BM25 lexical relevance and Elasticsearch's
+            # built-in semantic retrieval, merged with Reciprocal Rank Fusion.
+            # This is the actual product — a query like "why do requests
+            # start failing under load" should surface a doc about connection
+            # pool exhaustion even if it never says "requests" or "failing".
+            results = es.search(
+                retriever={
+                    'rrf': {
+                        'retrievers': [
+                            {'standard': {'query': _lexical_query(parsed_query, filters)}},
+                            {'standard': {'query': _semantic_query(parsed_query, filters)}},
+                        ],
+                        'rank_window_size': 50,
+                        'rank_constant': 20,
+                    }
+                },
+                **search_kwargs,
+            )
+        else:
+            # This cluster has no semantic inference endpoint available (see
+            # the fallback in Search.create_index) — lexical-only, same as
+            # before.
+            results = es.search(
+                query=_lexical_query(parsed_query, filters),
+                **search_kwargs,
+            )
+    except Exception:
+        # Search is the entire point of this app, but a cluster hiccup
+        # (unreachable, index missing/still building, a transient 5xx)
+        # shouldn't take down the whole page with a raw 500 — every other
+        # ES call in this app already degrades gracefully (see
+        # get_document's related-articles guard and sitemap_xml), this
+        # was the one gap.
+        app.logger.exception('Search failed for query %r', query)
+        flash(
+            'Search is temporarily unavailable. This usually means the '
+            'index is still being built, or the Elasticsearch cluster is '
+            'unreachable — try again in a moment.',
+            'danger',
         )
-    else:
-        # This cluster has no semantic inference endpoint available (see
-        # the fallback in Search.create_index) — lexical-only, same as
-        # before.
-        results = es.search(
-            query=_lexical_query(parsed_query, filters),
-            **search_kwargs,
+        return render_template(
+            'index.html', results=None, query=query, from_=from_,
+            total=0, aggs={}, search_failed=True,
+            page_title=f'{SITE_NAME} – {SITE_TAGLINE}',
+            meta_description=SITE_DESCRIPTION,
         )
 
     for hit in results['hits']['hits']:
