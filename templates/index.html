@@ -53,6 +53,37 @@
             </div>
         {% endif %}
     </div>
+
+    {% if not results and request.method != 'POST' %}
+        <div id="get-started" class="rk-get-started">
+            <h2 class="h4 text-center mb-1">Run this on your own cluster</h2>
+            <p class="text-center rk-search-hint mb-4">
+                This page is a live demo of the search — the actual product is the code, which you
+                deploy and run yourself. No account, no signup.
+            </p>
+            <div class="rk-steps">
+                <div class="rk-step">
+                    <span class="rk-step-num">1</span>
+                    <h3 class="h6">Clone &amp; install</h3>
+                    <p><code>git clone</code> the repo, <code>pip install -r requirements.txt</code>.</p>
+                </div>
+                <div class="rk-step">
+                    <span class="rk-step-num">2</span>
+                    <h3 class="h6">Point it at Elasticsearch</h3>
+                    <p>Set <code>ES_CLOUD_ID</code>/<code>ES_API_KEY</code> (or <code>ES_URL</code>) in <code>.env</code> — your own cluster, self-hosted or Elastic Cloud.</p>
+                </div>
+                <div class="rk-step">
+                    <span class="rk-step-num">3</span>
+                    <h3 class="h6">Run it</h3>
+                    <p><code>flask run</code> — the index builds itself on first start.</p>
+                </div>
+            </div>
+            <p class="text-center mt-4">
+                <a class="btn btn-primary" href="{{ REPO_URL }}" target="_blank" rel="noreferrer">View on GitHub &rarr;</a>
+                <a class="btn btn-outline-light ms-2" href="{{ REPO_URL }}#running-the-project" target="_blank" rel="noreferrer">Full setup instructions</a>
+            </p>
+        </div>
+    {% endif %}
     <script>
         document.querySelectorAll('.rk-example-chip').forEach(function (chip) {
             chip.addEventListener('click', function () {
