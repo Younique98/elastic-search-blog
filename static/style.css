@@ -144,6 +144,7 @@ select:focus-visible,
   color: var(--rk-text-secondary) !important;
   font-weight: 500;
   font-size: 0.9rem;
+  white-space: nowrap;
 }
 .navbar-nav .nav-link:hover,
 .navbar-nav .nav-link:focus-visible {
@@ -153,6 +154,37 @@ select:focus-visible,
   background: transparent !important;
   border: none;
   text-decoration: none;
+}
+
+/* Below ~576px the brand + three nav items (text link, text link, filled
+   button) don't fit on one row. Bootstrap's default navbar flex-wrap then
+   wraps mid-word inside each nav-link and blows the button up to two
+   lines instead of wrapping the *row* — this is a real layout bug, not
+   the sandbox's blocked-CDN artifact seen elsewhere in this project. Fix:
+   let the nav-item row wrap as a whole onto its own line under the brand,
+   keep every label on one line, and shrink the CTA to match the rest. */
+@media (max-width: 576px) {
+  .rk-navbar .container {
+    flex-wrap: wrap;
+    row-gap: var(--space-1);
+  }
+  .rk-navbar .navbar-nav {
+    width: 100%;
+    justify-content: flex-end;
+    flex-wrap: nowrap;
+    gap: var(--space-2);
+  }
+  .rk-navbar .navbar-nav .nav-item {
+    margin-right: 0 !important;
+  }
+  .rk-navbar .navbar-nav .nav-link {
+    font-size: 0.82rem;
+  }
+  .rk-navbar .navbar-nav .btn-primary.btn-sm {
+    white-space: nowrap;
+    font-size: 0.78rem;
+    padding: 0.35rem 0.7rem;
+  }
 }
 
 /* Hero */
