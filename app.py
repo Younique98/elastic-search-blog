@@ -410,18 +410,20 @@ def newsletter_subscribe():
 # ---------------------------------------------------------------------------
 # Starter Kit: one-time purchase via Stripe Checkout
 #
-# The one sellable product right now: a downloadable code
-# template/boilerplate for adding Elasticsearch-powered hybrid search —
-# the same lexical+semantic pattern this blog runs on — to a Flask,
-# Django, or Node app. Sold as a single $49 purchase (billing.py,
-# `mode: "payment"`), not a subscription.
+# The one sellable product right now: `starter-kit/` at the repo root —
+# a reusable, framework-agnostic `hybrid_search` package plus a minimal
+# Flask example app, extracted from this blog's own retrieval pattern
+# (see search.py and the `_lexical_query`/`_semantic_query`/RRF-retriever
+# code above). Sold as a single $49 purchase (billing.py, `mode:
+# "payment"`), not a subscription.
 #
-# Delivery is automated (see notifications.py) even though the kit's
-# actual contents aren't finished yet: the webhook always sends a
-# confirmation email, and includes the real download link only once
-# STARTER_KIT_FILE_URL is set — until then it tells the buyer their
-# link is coming within 24 hours. That's the one thing this still
-# needs a human for; nothing in the code changes once the kit ships.
+# Delivery is automated (see notifications.py): the webhook always sends
+# a confirmation email, and includes the real download link
+# (STARTER_KIT_FILE_URL — see .env.example) once it's set. It's served
+# as a static file from this same app (static/starter-kit.zip, rebuilt
+# by scripts/build_starter_kit_zip.sh) rather than a separately hosted
+# file, so setting STARTER_KIT_FILE_URL is the only remaining step —
+# no external file host to stand up.
 # ---------------------------------------------------------------------------
 
 @app.get('/starter-kit')
@@ -432,9 +434,9 @@ def starter_kit():
         price_label=billing.STARTER_KIT_PRICE_LABEL,
         page_title=f'Elasticsearch Search Starter Kit – {SITE_NAME}',
         meta_description=(
-            'A downloadable starter kit for adding Elasticsearch-powered '
-            'hybrid lexical + semantic search to your own Flask, Django, '
-            'or Node app.'
+            'A reference implementation of hybrid (BM25 + semantic) '
+            'Elasticsearch search — the same pattern running this blog — '
+            'as a reusable Python package plus a working example app.'
         ),
     )
 
@@ -529,9 +531,10 @@ def stripe_webhook():
                     # and a retried delivery email is exactly the kind
                     # of duplicate the idempotent insert above exists to
                     # prevent. STARTER_KIT_FILE_URL is unset until Erica
-                    # finishes the kit, so today this sends the "still
-                    # coming" variant (see notifications.py) — nothing
-                    # here needs to change when that's ready.
+                    # sets it to the deployed static/starter-kit.zip URL
+                    # (see .env.example), so until then this sends the
+                    # "still coming" variant (see notifications.py) —
+                    # nothing here needs to change when that's set.
                     sent = notifications.send_starter_kit_purchase_email(email)
                     if not sent and notifications.is_configured():
                         app.logger.error(

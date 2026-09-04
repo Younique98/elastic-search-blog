@@ -1,0 +1,13 @@
+# Pinned to the same versions this pattern is verified against in the
+# parent repo (see its requirements.txt) — newer elasticsearch-py major
+# versions have changed the client's calling convention before.
+elasticsearch==8.17.2
+python-dotenv==1.2.2
+
+# Only needed to run example_app/ — hybrid_search/ itself has no Flask
+# dependency and works from any Python code (a script, a Django view, a
+# background job).
+Flask==3.1.3
+
+# Only needed to run tests/.
+pytest==8.3.4
