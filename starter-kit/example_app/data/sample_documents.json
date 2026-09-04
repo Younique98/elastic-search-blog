@@ -1,0 +1,32 @@
+[
+  {
+    "id": "1",
+    "title": "Connection pool exhaustion",
+    "content": "When every connection in a fixed-size pool is checked out and none are returned in time, new requests queue up and start timing out. Symptoms include a sudden spike in p99 latency under load with no corresponding CPU or memory spike, and errors that mention waiting for a connection rather than a downstream failure."
+  },
+  {
+    "id": "2",
+    "title": "Reciprocal Rank Fusion (RRF)",
+    "content": "RRF combines the ranked result lists from two or more retrievers into a single ranking by summing each document's reciprocal rank across every list it appears in, rather than trying to normalize and blend raw relevance scores that use incompatible scales."
+  },
+  {
+    "id": "3",
+    "title": "Idempotent webhook handlers",
+    "content": "A webhook sender that retries on any non-2xx response, timeout, or network error will redeliver the same event more than once. A handler that isn't idempotent — for example, one that always inserts a new database row rather than upserting on a stable event ID — ends up double-processing the same purchase or state change."
+  },
+  {
+    "id": "4",
+    "title": "BM25 term frequency saturation",
+    "content": "BM25 diminishes the score contribution of additional occurrences of the same term, so a document repeating one keyword forty times does not outscore a document that uses it three times but is otherwise more relevant. This is one of the main improvements BM25 makes over older TF-IDF scoring."
+  },
+  {
+    "id": "5",
+    "title": "Blue-green deployments",
+    "content": "Two identical production environments are kept running, with a router or load balancer directing all live traffic to one of them at a time. A new release is deployed to the idle environment, verified, and then traffic is switched over — giving an instant rollback path if something is wrong, since the previous environment is still running unchanged."
+  },
+  {
+    "id": "6",
+    "title": "Cache stampede",
+    "content": "When a popular cache key expires, many concurrent requests can all miss the cache at once and hit the origin simultaneously, multiplying load exactly when the system is least prepared for it. Techniques like request coalescing or early recomputation before expiry prevent every one of those requests from reaching the backend independently."
+  }
+]

@@ -5,33 +5,81 @@
         <span class="rk-badge">One-time purchase</span>
         <h1>Elasticsearch Search Starter Kit</h1>
         <p class="rk-subhead">
-            A downloadable code template for adding Elasticsearch-powered hybrid
-            search — the same lexical + semantic retrieval this blog runs on — to
-            your own Flask, Django, or Node app, without adopting a separate
-            vector database.
+            A working reference implementation of hybrid search — BM25 lexical +
+            semantic vector, merged with Reciprocal Rank Fusion, in <em>one</em>
+            Elasticsearch index — with automatic fallback to lexical-only when no
+            inference endpoint is available. This is the exact pattern running the
+            search on this blog, not a tutorial written separately from what
+            actually ships.
         </p>
     </div>
 
     <div class="row g-4 mt-1">
         <div class="col-lg-7">
             <div class="rk-panel">
-                <h2 class="h5 mb-3">What's included</h2>
+                <h2 class="h5 mb-3">The problem it solves</h2>
                 <p style="color: var(--rk-text-secondary);">
-                    Kit contents are coming soon — this page is live ahead of the
-                    finished kit so early buyers can be notified the moment it
-                    ships. Once published, it will walk through wiring up
-                    Elasticsearch's <code>semantic_text</code> field and a hybrid
-                    BM25 + semantic retriever in each of the three stacks below,
-                    the same pattern implemented in this repository.
+                    Most "hybrid search" setups run Elasticsearch (or another
+                    search engine) for lexical matching and a <em>separate</em>
+                    vector database — Pinecone, Qdrant, Weaviate — for semantic
+                    matching. That's a second write path to keep in sync, a second
+                    system that can silently drift out of consistency with the
+                    first, and a multi-hop query stitched together by hand in
+                    application code that gets slow and flaky under load, right
+                    when search matters most.
                 </p>
+                <p style="color: var(--rk-text-secondary);">
+                    Elasticsearch 8.15+ (and Elastic Cloud/Serverless) can do the
+                    semantic half itself — a <code>semantic_text</code> field type
+                    that computes embeddings in-cluster via a built-in inference
+                    endpoint, no external vector store or embedding API required.
+                    This kit is that pattern, extracted into a package you can drop
+                    into your own project.
+                </p>
+
+                <h2 class="h5 mb-3 mt-4">What's included</h2>
                 <ul class="rk-kit-list mt-3">
-                    <li>Setup guide for Flask, Django, and Node</li>
-                    <li>Hybrid lexical + semantic query examples</li>
-                    <li>Index mapping and reindexing scripts</li>
+                    <li>
+                        <strong>A reusable <code>hybrid_search</code> package</strong>
+                        (no Flask dependency) — index setup with the right
+                        <code>semantic_text</code> mapping, and a query builder that
+                        runs BM25 + semantic as one RRF-merged retriever query.
+                    </li>
+                    <li>
+                        <strong>Graceful fallback, in real code</strong> — the same
+                        function that builds the hybrid query automatically returns
+                        a plain lexical query when a cluster has no inference
+                        endpoint, instead of raising. Proven by unit tests, not just
+                        described in prose.
+                    </li>
+                    <li>
+                        <strong>A minimal example Flask app</strong> wiring the
+                        package together end to end, with sample documents chosen
+                        so you can see semantic retrieval surface a result that
+                        shares none of the query's exact words.
+                    </li>
+                    <li>
+                        <strong>13 unit tests</strong> (mocked Elasticsearch client,
+                        no cluster required) pinning down the RRF query structure
+                        and the fallback branch.
+                    </li>
+                    <li>
+                        <strong>A README covering setup and the pitfalls that
+                        actually bite</strong> — inference-endpoint configuration,
+                        ELSER's RAM overhead, indexing lag under bulk load, and why
+                        running two separate systems costs more than it looks like
+                        up front.
+                    </li>
                 </ul>
-                <p class="rk-search-hint mt-3 mb-0">
-                    Exact contents and format (a repo, a zip, or both) are still
-                    being finalized.
+
+                <h2 class="h5 mb-3 mt-4">Who it's for</h2>
+                <p style="color: var(--rk-text-secondary); margin-bottom: 0;">
+                    Developers who already run Elasticsearch and have hit (or are
+                    about to hit) the two-system hybrid-search problem — bolting a
+                    vector database onto an existing search stack instead of
+                    turning on a feature the cluster already has. If you haven't
+                    started yet, this is the pattern to build toward instead of
+                    reaching for a second database by default.
                 </p>
             </div>
         </div>
@@ -58,6 +106,15 @@
                         <code>STRIPE_PRICE_ID</code>, and <code>STRIPE_WEBHOOK_SECRET</code>.
                     </p>
                 {% endif %}
+                <hr class="my-3">
+                <p class="rk-search-hint mb-0" style="text-align: left;">
+                    <strong>Set expectations:</strong> this is a reference
+                    implementation to read, adapt, and drop into your own project —
+                    not a managed service, a drop-in library, or a magic fix for an
+                    existing hybrid-search architecture. No support contract, no
+                    auth/rate-limiting included, and the sample data is a handful
+                    of short documents, not a production corpus.
+                </p>
             </div>
         </div>
     </div>
